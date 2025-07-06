@@ -1,25 +1,22 @@
-# 🧠 Smart Logistics System - Fullstack App (Node.js + React + Kafka + Docker)
+# 🍽️ Smart Restaurant Management System
 
-Sistema avanzado de gestión de activos logísticos con arquitectura de microservicios, comunicación por Kafka, panel de control en React, colas de procesos y análisis en tiempo real.
+Plataforma integral para la gestión digital avanzada de restaurantes, con reservas, control de inventario, pedidos en tiempo real, comunicación entre cocina y meseros, reportes y notificaciones automáticas.
 
 ---
 
 ## 📦 Tech Stack
 
-| Capa       | Tecnología                        |
-|------------|-----------------------------------|
-| Frontend   | React.js + Tailwind + Zustand     |
-| Backend    | Node.js + Express + PostgreSQL    |
-| Eventos    | Apache Kafka                      |
-| Workers    | BullMQ + Redis                    |
-| Realtime   | Socket.io                         |
-| Cache      | Redis                             |
-| Auth       | JWT + Roles                       |
-| Infra      | Docker + Docker Compose           |
-| DevOps     | GitHub Actions + NGINX (opcional) |
-| Testing    | Jest + Supertest                  |
+| Capa         | Tecnología / Funcionalidad                          |
+|--------------|---------------------------------------------------|
+| Frontend     | React.js + Tailwind CSS + Zustand + React Hook Form |
+| Backend      | Node.js + Express + PostgreSQL + Redis            |
+| Eventos      | Apache Kafka (gestión de eventos: pedidos, cambios) |
+| Cola de tareas | BullMQ (notificaciones, generación de tickets)  |
+| Tiempo real  | WebSocket (actualización en vivo de mesas y pedidos) |
+| Seguridad    | JWT + Roles (admin, mesero, cocina, cliente)      |
+| Infraestructura | Docker + Docker Compose + GitHub Actions (CI/CD) |
 
 ---
 
-## 📁 Estructura de Proyecto
+## 📁 Estructura del proyecto
 
