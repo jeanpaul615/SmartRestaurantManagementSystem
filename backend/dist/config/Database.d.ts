@@ -1,2 +1,1 @@
-export declare class AppModule {
-}
+export declare const DatabaseConfig: import("@nestjs/common").DynamicModule;
