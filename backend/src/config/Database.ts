@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 
@@ -10,5 +13,5 @@ export const DatabaseConfig = TypeOrmModule.forRoot({
     database: process.env.DB_NAME || 'test',
     autoLoadEntities: true,
     synchronize: true,
-    logging: true,
+    logging: false,
 });

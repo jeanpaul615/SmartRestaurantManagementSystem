@@ -2,10 +2,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setupSwagger } from './config/Swagger';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+  Logger.overrideLogger(['error']); // Solo muestra errores
   //Swagger Integration
   setupSwagger(app);
 
