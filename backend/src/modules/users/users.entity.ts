@@ -1,4 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
+import { Reservation } from '../reservations/reservations.entity';
+import { Order } from '../orders/orders.entity';
+import { Notification } from '../notifications/notifications.entity';
 
 
 @Entity('users')
