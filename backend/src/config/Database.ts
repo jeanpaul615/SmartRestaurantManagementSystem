@@ -6,12 +6,12 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 // Importa las entidades aquí
 import { User } from '../modules/users/users.entity';
 import { Reservation } from '../modules/reservations/reservations.entity';
-import { Tables } from 'src/modules/tables/tables.entity';
-import { Notification } from 'src/modules/notifications/notifications.entity';
-import { Order } from 'src/modules/orders/orders.entity';
-import { OrderItem } from 'src/modules/order_items/order_items.entity';
-import { Product } from 'src/modules/products/products.entity';
-import { Restaurant } from 'src/modules/restaurant/restaurant.entity';
+import { Tables } from '../modules/tables/tables.entity';
+import { Notification } from '../modules/notifications/notifications.entity';
+import { Order } from '../modules/orders/orders.entity';
+import { OrderItem } from '../modules/order_items/order_items.entity';
+import { Product } from '../modules/products/products.entity';
+import { Restaurant } from '../modules/restaurant/restaurant.entity';
 
 // Configuración de la base de datos utilizando TypeORM
 

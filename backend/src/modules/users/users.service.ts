@@ -22,15 +22,34 @@ export class UsersService {
         }
 
         async FindByEmail(email: string): Promise<User | null> {
-            return this.usersRepository.findOne({ where: { email } });
+            return this.usersRepository.findOne({
+                where: { email },
+                cache: {
+                    id: `user-by-email-${email}`,
+                    milliseconds: 60000, // cache por 60 segundos
+                },
+            });
         }
 
         async FindAll(): Promise<User[]> {
-            return this.usersRepository.find();
+            return this.usersRepository.find({
+                select: ['id', 'username', 'email', 'role'],
+                take: 100,
+                cache: {
+                    id: 'users-list',
+                    milliseconds: 60000, // cache por 60 segundos
+                },
+            });
         }
 
         async FindById(id: number): Promise<User | null> {
-            return this.usersRepository.findOne({ where: { id } });
+            return this.usersRepository.findOne({
+                where: { id },
+                cache: {
+                    id: `user-by-id-${id}`,
+                    milliseconds: 60000, // cache por 60 segundos
+                },
+            });
         }
 
 
