@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
 import { OrderItem } from '../order_items/order_items.entity';
+import { Restaurant } from '../restaurant/restaurant.entity';
 
 @Entity('products')
 export class Product {
@@ -17,6 +18,9 @@ export class Product {
 
   @Column({ default: 0 })
   stock: number;
+
+  @ManyToOne(() => Restaurant, restaurant => restaurant.products)
+  restaurant: Restaurant;
 
   @OneToMany(() => OrderItem, orderItem => orderItem.product)
   orderItems: OrderItem[];

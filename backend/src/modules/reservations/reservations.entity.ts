@@ -1,6 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column, ManyToOne} from 'typeorm';
 import { User } from '../users/users.entity';
 import { Tables } from '../tables/tables.entity';    
+import { Restaurant } from '../restaurant/restaurant.entity';
 
 @Entity('reservations')
 export class Reservation {
@@ -13,9 +14,12 @@ export class Reservation {
     @Column({ length: 20, default: 'pending'})
     status: string;
 
-    @ManyToOne(() => User, user => user.reservations, {eager: true})
+    @ManyToOne(() => Restaurant, restaurant => restaurant.reservations)
+    restaurant: Restaurant;
+
+    @ManyToOne(() => User, user => user.reservations)
     user: User;
 
-    @ManyToOne(() => Tables, tables => tables.reservations, {eager: true})
-    tables: Tables; 
+    @ManyToOne(() => Tables, table => table.reservations)
+    tables: Tables;
 }

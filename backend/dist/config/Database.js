@@ -44,6 +44,7 @@ const notifications_entity_1 = require("../modules/notifications/notifications.e
 const orders_entity_1 = require("../modules/orders/orders.entity");
 const order_items_entity_1 = require("../modules/order_items/order_items.entity");
 const products_entity_1 = require("../modules/products/products.entity");
+const restaurant_entity_1 = require("../modules/restaurant/restaurant.entity");
 exports.DatabaseConfig = typeorm_1.TypeOrmModule.forRoot({
     type: 'postgres',
     host: process.env.DB_HOST || 'localhost',
@@ -54,6 +55,6 @@ exports.DatabaseConfig = typeorm_1.TypeOrmModule.forRoot({
     autoLoadEntities: true,
     synchronize: true,
     logging: false,
-    entities: [users_entity_1.User, reservations_entity_1.Reservation, tables_entity_1.Tables, notifications_entity_1.Notification, orders_entity_1.Order, order_items_entity_1.OrderItem, products_entity_1.Product],
+    entities: [users_entity_1.User, reservations_entity_1.Reservation, tables_entity_1.Tables, notifications_entity_1.Notification, orders_entity_1.Order, order_items_entity_1.OrderItem, products_entity_1.Product, restaurant_entity_1.Restaurant],
 });
 //# sourceMappingURL=Database.js.map

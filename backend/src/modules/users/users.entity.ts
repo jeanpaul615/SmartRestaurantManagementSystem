@@ -2,6 +2,7 @@ import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from 'typeorm';
 import { Reservation } from '../reservations/reservations.entity';
 import { Order } from '../orders/orders.entity';
 import { Notification } from '../notifications/notifications.entity';
+import { Restaurant } from '../restaurant/restaurant.entity';
 
 export enum UserRole {
 
@@ -51,5 +52,8 @@ export class User {
 
     @OneToMany(() => Notification, notification => notification.user)
     notifications: Notification[];
+
+    @OneToMany(() => Restaurant, restaurant => restaurant.user)
+    restaurants: Restaurant[];
 
 }

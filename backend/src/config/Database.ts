@@ -11,6 +11,7 @@ import { Notification } from 'src/modules/notifications/notifications.entity';
 import { Order } from 'src/modules/orders/orders.entity';
 import { OrderItem } from 'src/modules/order_items/order_items.entity';
 import { Product } from 'src/modules/products/products.entity';
+import { Restaurant } from 'src/modules/restaurant/restaurant.entity';
 
 // Configuración de la base de datos utilizando TypeORM
 
@@ -24,5 +25,5 @@ export const DatabaseConfig = TypeOrmModule.forRoot({
     autoLoadEntities: true,
     synchronize: true,
     logging: false,
-    entities: [User, Reservation, Tables, Notification, Order, OrderItem, Product], // Todas las entidades importadas
+    entities: [User, Reservation, Tables, Notification, Order, OrderItem, Product, Restaurant], // Todas las entidades importadas
 });

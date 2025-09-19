@@ -2,14 +2,14 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'ty
 import { User } from '../users/users.entity';
 import { Tables } from '../tables/tables.entity';
 import { OrderItem } from '../order_items/order_items.entity';
+import { Restaurant } from '../restaurant/restaurant.entity';
 
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, user => user.orders)
-  user: User;
+  // Removed duplicate user property
 
   @ManyToOne(() => Tables, tables => tables.orders)
   table: Tables;
@@ -20,6 +20,15 @@ export class Order {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @OneToMany(() => OrderItem, orderItem => orderItem.order)
-  orderItems: OrderItem[];
+@ManyToOne(() => Restaurant, restaurant => restaurant.orders)
+restaurant: Restaurant;
+
+@ManyToOne(() => User, user => user.orders)
+user: User;
+
+@ManyToOne(() => Tables, table => table.orders)
+tables: Tables;
+
+@OneToMany(() => OrderItem, orderItem => orderItem.order)
+orderItems: OrderItem[];
 }

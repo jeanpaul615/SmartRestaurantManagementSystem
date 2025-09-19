@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
 import { Reservation } from '../reservations/reservations.entity';
-import { Order } from '../orders/orders.entity';    
+import { Order } from '../orders/orders.entity'; 
+import { Restaurant } from '../restaurant/restaurant.entity';   
 
 @Entity('tables')
 export class Tables {
@@ -16,9 +17,12 @@ export class Tables {
     @Column({length: 20, default: 'available'})
     status: string;
 
-    @OneToMany(() => Reservation, reservation => reservation.tables)
-    reservations: Reservation[];
+@ManyToOne(() => Restaurant, restaurant => restaurant.tables)
+restaurant: Restaurant;
 
-    @OneToMany(() => Order, order => order.table)
-    orders: Order[];
+@OneToMany(() => Reservation, reservation => reservation.tables)
+reservations: Reservation[];
+
+@OneToMany(() => Order, order => order.tables)
+orders: Order[];
 }
