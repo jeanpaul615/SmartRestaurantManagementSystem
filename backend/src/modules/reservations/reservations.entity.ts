@@ -1,6 +1,6 @@
 import {Entity, PrimaryGeneratedColumn, Column, ManyToOne} from 'typeorm';
 import { User } from '../users/users.entity';
-import { Table } from '../tables/tables.entity';    
+import { Tables } from '../tables/tables.entity';    
 
 @Entity('reservations')
 export class Reservation {
@@ -16,6 +16,6 @@ export class Reservation {
     @ManyToOne(() => User, user => user.reservations, {eager: true})
     user: User;
 
-    @ManyToOne(() => Table, table => table.reservations, {eager: true})
-    table: Table; 
+    @ManyToOne(() => Tables, tables => tables.reservations, {eager: true})
+    tables: Tables; 
 }

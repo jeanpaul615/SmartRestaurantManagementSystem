@@ -37,6 +37,13 @@ exports.DatabaseConfig = void 0;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const typeorm_1 = require("@nestjs/typeorm");
+const users_entity_1 = require("../modules/users/users.entity");
+const reservations_entity_1 = require("../modules/reservations/reservations.entity");
+const tables_entity_1 = require("../modules/tables/tables.entity");
+const notifications_entity_1 = require("../modules/notifications/notifications.entity");
+const orders_entity_1 = require("../modules/orders/orders.entity");
+const order_items_entity_1 = require("../modules/order_items/order_items.entity");
+const products_entity_1 = require("../modules/products/products.entity");
 exports.DatabaseConfig = typeorm_1.TypeOrmModule.forRoot({
     type: 'postgres',
     host: process.env.DB_HOST || 'localhost',
@@ -47,5 +54,6 @@ exports.DatabaseConfig = typeorm_1.TypeOrmModule.forRoot({
     autoLoadEntities: true,
     synchronize: true,
     logging: false,
+    entities: [users_entity_1.User, reservations_entity_1.Reservation, tables_entity_1.Tables, notifications_entity_1.Notification, orders_entity_1.Order, order_items_entity_1.OrderItem, products_entity_1.Product],
 });
 //# sourceMappingURL=Database.js.map

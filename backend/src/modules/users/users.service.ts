@@ -12,12 +12,21 @@ export class UsersService {
     ) {}
 
         async CreateUser(createUserDto: CreateUserDto): Promise<User> {
-            const newUser = this.usersRepository.create(createUserDto);
+            // Transform role to the correct type if necessary
+            const { role, ...rest } = createUserDto;
+            const newUser = this.usersRepository.create({
+                ...rest,
+                role: role as any // Replace 'any' with the actual UserRole type if available
+            });
             return this.usersRepository.save(newUser);
         }
 
         async FindByEmail(email: string): Promise<User | null> {
             return this.usersRepository.findOne({ where: { email } });
+        }
+
+        async FindAll(): Promise<User[]> {
+            return this.usersRepository.find();
         }
 
         async FindById(id: number): Promise<User | null> {

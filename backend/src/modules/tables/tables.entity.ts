@@ -3,7 +3,7 @@ import { Reservation } from '../reservations/reservations.entity';
 import { Order } from '../orders/orders.entity';    
 
 @Entity('tables')
-export class Table {
+export class Tables {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -16,7 +16,7 @@ export class Table {
     @Column({length: 20, default: 'available'})
     status: string;
 
-    @OneToMany(() => Reservation, reservation => reservation.table)
+    @OneToMany(() => Reservation, reservation => reservation.tables)
     reservations: Reservation[];
 
     @OneToMany(() => Order, order => order.table)

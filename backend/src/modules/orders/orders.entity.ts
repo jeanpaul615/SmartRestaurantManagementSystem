@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../users/users.entity';
-import { Table } from '../tables/tables.entity';
+import { Tables } from '../tables/tables.entity';
 import { OrderItem } from '../order_items/order_items.entity';
 
 @Entity('orders')
@@ -11,8 +11,8 @@ export class Order {
   @ManyToOne(() => User, user => user.orders)
   user: User;
 
-  @ManyToOne(() => Table, table => table.orders)
-  table: Table;
+  @ManyToOne(() => Tables, tables => tables.orders)
+  table: Tables;
 
   @Column({ length: 20, default: 'pending' })
   status: string;
