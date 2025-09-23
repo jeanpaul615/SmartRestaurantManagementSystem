@@ -13,7 +13,16 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"],
+      "@app/*": ["app/*"],
+      "@modules/*": ["modules/*"],
+      "@config/*": ["config/*"],
+      "@common/*": ["common/*"],
+      "@websockets/*": ["websockets/*"],
+      "@jobs/*": ["jobs/*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,

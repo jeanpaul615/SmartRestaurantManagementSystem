@@ -16,7 +16,7 @@ export class UsersService {
             const { role, ...rest } = createUserDto;
             const newUser = this.usersRepository.create({
                 ...rest,
-                role: role as any // Replace 'any' with the actual UserRole type if available
+                role: role as any 
             });
             return this.usersRepository.save(newUser);
         }
