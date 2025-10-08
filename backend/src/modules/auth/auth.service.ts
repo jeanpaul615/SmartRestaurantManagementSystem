@@ -1,6 +1,5 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
-import { Repository } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
 import { LoginDto } from "./dto/login-auth.dto";
@@ -39,6 +38,12 @@ export class AuthService {
     }
 
     async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
+        // Check if the email already exists
+        const existingUser = await this.usersService.FindByEmail(registerDto.email);
+        if (existingUser) {
+            throw new UnauthorizedException('Email is already in use');
+        }
+
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
         const newUser = await this.usersService.CreateUser({
             ...registerDto,
