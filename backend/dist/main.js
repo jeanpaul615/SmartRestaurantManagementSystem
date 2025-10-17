@@ -10,7 +10,7 @@ async function bootstrap() {
     app.useGlobalPipes(new common_2.ValidationPipe());
     common_1.Logger.overrideLogger(['error']);
     (0, Swagger_1.setupSwagger)(app);
-    await app.listen(process.env.PORT ?? 3000);
+    await app.listen(process.env.PORT ?? 8000);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
