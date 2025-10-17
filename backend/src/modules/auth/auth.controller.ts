@@ -2,10 +2,16 @@ import { Controller, Get, Post, Body, Put, Delete, Param, Query, NotFoundExcepti
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login-auth.dto';
 import { User } from '../users/users.entity';
+
+//DTOs
+import { LoginDto } from './dto/login-auth.dto';
 import { AuthResponseDto } from './dto/response-auth.dto';
 import { RegisterDto } from './dto/register-auth.dto';
+
+//GUARDS & DECORATORS
+import { Public } from '@decorators/public.decorator';
+import { CurrentUser } from '@decorators/current-user.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -13,6 +19,7 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {
     }
     //Login
+    @Public() 
     @Post('login')
     @ApiOperation({ summary: 'Iniciar sesión' })
     @ApiResponse({ status: 200, description: 'Inicio de sesión exitoso.', type: User })
@@ -25,6 +32,7 @@ export class AuthController {
     }
 
     //register
+    @Public() 
     @Post('register')
     @ApiOperation({ summary: 'Registrar un nuevo usuario' })
     @ApiResponse({ status: 201, description: 'Usuario registrado exitosamente.', type: AuthResponseDto })

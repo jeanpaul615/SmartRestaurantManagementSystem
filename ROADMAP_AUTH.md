@@ -1,13 +1,13 @@
 1. Backend - Configuración Base JWT (6 pasos)
 
 Instalar dependencias
-Crear JWT Strategy
-Configurar JwtModule
+Crear JWT Strategy ----- LISTO
+Configurar JwtModule ----- LISTO
 
 2. Backend - Guards y Decoradores (7 pasos)
 
-JwtAuthGuard, RolesGuard
-@Public(), @Roles(), @CurrentUser()
+JwtAuthGuard, RolesGuard ----- LISTO
+@Public(), @Roles(), @CurrentUser()  
 Aplicar guards globalmente
 
 3. Backend - Refresh Tokens (6 pasos)

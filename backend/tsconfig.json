@@ -19,7 +19,8 @@
       "@config/*": ["config/*"],
       "@common/*": ["common/*"],
       "@websockets/*": ["websockets/*"],
-      "@jobs/*": ["jobs/*"]
+      "@jobs/*": ["jobs/*"],
+      "@decorators/*": ["modules/auth/decorators/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
