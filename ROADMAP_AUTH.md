@@ -7,8 +7,8 @@ Configurar JwtModule ----- LISTO
 2. Backend - Guards y Decoradores (7 pasos)
 
 JwtAuthGuard, RolesGuard ----- LISTO
-@Public(), @Roles(), @CurrentUser()  
-Aplicar guards globalmente
+@Public(), @Roles(), @CurrentUser()  ----- LISTO  
+Aplicar guards globalmente 
 
 3. Backend - Refresh Tokens (6 pasos)
 
