@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { UsersService } from "../users/users.service";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
@@ -11,7 +12,95 @@ export class AuthService {
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
+        private configService: ConfigService,
     ) {}
+
+    // ========================================
+    // 🔧 MÉTODOS PRIVADOS REUTILIZABLES
+    // ========================================
+
+    /**
+     * Genera el payload estándar para los tokens JWT
+     */
+    private createTokenPayload(user: any) {
+        return {
+            sub: user.id,
+            email: user.email,
+            username: user.username,
+            role: user.role,
+        };
+    }
+
+    /**
+     * Genera un Access Token (corta duración)
+     */
+    private generateAccessToken(user: any): string {
+        const payload = this.createTokenPayload(user);
+        const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN') || '1h';
+        
+        return this.jwtService.sign(payload, { expiresIn });
+    }
+
+    /**
+     * Genera un Refresh Token (larga duración)
+     */
+    private generateRefreshToken(user: any): string {
+        const payload = {
+            sub: user.id,
+            type: 'refresh', // Identificar que es un refresh token
+        };
+        const expiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d';
+        
+        return this.jwtService.sign(payload, { expiresIn });
+    }
+
+    /**
+     * Genera ambos tokens (access + refresh)
+     */
+    private generateTokens(user: any) {
+        return {
+            access_token: this.generateAccessToken(user),
+            refresh_token: this.generateRefreshToken(user),
+        };
+    }
+
+    /**
+     * Obtiene el tiempo de expiración en segundos
+     */
+    private getTokenExpirationTime(): number {
+        const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN') || '1h';
+        
+        // Convertir formato (1h, 15m, 7d) a segundos
+        const match = expiresIn.match(/^(\d+)([smhd])$/);
+        if (!match) return 3600; // Default: 1 hora
+        
+        const [, value, unit] = match;
+        const multipliers = { s: 1, m: 60, h: 3600, d: 86400 };
+        
+        return parseInt(value) * multipliers[unit];
+    }
+
+    /**
+     * Crea la respuesta de autenticación estándar
+     */
+    private createAuthResponse(user: any, tokens: { access_token: string; refresh_token: string }): AuthResponseDto {
+        return {
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            token_type: 'Bearer',
+            expires_in: this.getTokenExpirationTime(),
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+            },
+        };
+    }
+
+    // ========================================
+    // 📍 MÉTODOS PÚBLICOS
+    // ========================================
 
     async validateUser(email: string, password: string): Promise<any> {
         const user = await this.usersService.FindByEmail(email);
@@ -26,39 +115,41 @@ export class AuthService {
     }
 
     async login(loginDto: LoginDto): Promise<AuthResponseDto> {
+        // Validar credenciales
         const user = await this.validateUser(loginDto.email, loginDto.password);
-        const payload = { username: user.username, sub: user.id, role: user.role };
-        const access_token = this.jwtService.sign(payload);
-        return {
-            access_token,
-            token_type: "Bearer",
-            expires_in: 3600, // or set this value according to your JWT expiration config
-            user: { id: user.id, username: user.username, email: user.email, role: user.role }
-        };
+        
+        // ✅ Usar método unificado para generar tokens
+        const tokens = this.generateTokens(user);
+        
+        // ✅ Usar método unificado para crear respuesta
+        return this.createAuthResponse(user, tokens);
     }
 
+
     async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-        // Check if the email already exists
+        // Verificar si el email ya existe
         const existingUser = await this.usersService.FindByEmail(registerDto.email);
         if (existingUser) {
             throw new UnauthorizedException('Email is already in use');
         }
 
+        // Hashear contraseña
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+        
+        // Crear usuario
         const newUser = await this.usersService.CreateUser({
             ...registerDto,
             password: hashedPassword,
-            role: registerDto.role ?? "user", // Provide a default role if undefined
+            role: registerDto.role ?? "user",
         });
-        const payload = { username: newUser.username, sub: newUser.id, role: newUser.role };
-        const access_token = this.jwtService.sign(payload);
-        return {
-            access_token,
-            token_type: "Bearer",
-            expires_in: 3600, // or set this value according to your JWT expiration config
-            user: { id: newUser.id, username: newUser.username, email: newUser.email, role: newUser.role }
-        };
+
+        // ✅ Usar método unificado para generar tokens
+        const tokens = this.generateTokens(newUser);
+        
+        // ✅ Usar método unificado para crear respuesta
+        return this.createAuthResponse(newUser, tokens);
     }
+
 
     async validateToken(token: string): Promise<any> {
         try {
@@ -73,6 +164,7 @@ export class AuthService {
         }
     }
 
+
     async logout(userId: string): Promise<void> {
         // Implement token invalidation logic if using a token blacklist or similar strategy
 
@@ -81,18 +173,18 @@ export class AuthService {
         return;
     }
 
+    
     async refreshToken(userId: string): Promise<AuthResponseDto> {
+        // Buscar usuario
         const user = await this.usersService.FindById(Number(userId));
         if (!user) {
             throw new UnauthorizedException("User not found");
         }
-        const payload = { username: user.username, sub: user.id, role: user.role };
-        const access_token = this.jwtService.sign(payload);
-        return {
-            access_token,
-            token_type: "Bearer",
-            expires_in: 3600, // or set this value according to your JWT expiration config
-            user: { id: user.id, username: user.username, email: user.email, role: user.role }
-        };
+        
+        // ✅ Usar método unificado para generar tokens
+        const tokens = this.generateTokens(user);
+        
+        // ✅ Usar método unificado para crear respuesta
+        return this.createAuthResponse(user, tokens);
     }   
 }

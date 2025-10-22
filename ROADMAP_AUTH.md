@@ -8,11 +8,11 @@ Configurar JwtModule ----- LISTO
 
 JwtAuthGuard, RolesGuard ----- LISTO
 @Public(), @Roles(), @CurrentUser()  ----- LISTO  
-Aplicar guards globalmente 
+Aplicar guards globalmente  ----- LISTO 
 
 3. Backend - Refresh Tokens (6 pasos)
 
-Entidad RefreshToken
+Entidad RefreshToken ----- LISTO 
 Endpoints /refresh y /logout
 Revocación de tokens
 

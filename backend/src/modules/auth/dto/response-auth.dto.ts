@@ -10,6 +10,9 @@ export class AuthResponseDto {
     @ApiProperty({ example: 3600, description: 'Tiempo de expiración en segundos' })
     expires_in: number;
 
+    @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', description: 'Token JWT de refresco' })
+    refresh_token: string;
+
     @ApiProperty({
         example: {
             id: 1,

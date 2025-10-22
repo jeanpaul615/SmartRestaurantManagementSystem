@@ -3,6 +3,7 @@ import { Reservation } from '../reservations/reservations.entity';
 import { Order } from '../orders/orders.entity';
 import { Notification } from '../notifications/notifications.entity';
 import { Restaurant } from '../restaurant/restaurant.entity';
+import { RefreshToken } from '../auth/entities/refresh-token.entity';
 
 export enum UserRole {
 
@@ -55,5 +56,8 @@ export class User {
 
     @OneToMany(() => Restaurant, restaurant => restaurant.user)
     restaurants: Restaurant[];
+
+    @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
+    refreshTokens: RefreshToken[];
 
 }
