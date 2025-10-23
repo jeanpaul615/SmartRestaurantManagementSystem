@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Delete, Param, Query, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
@@ -44,5 +44,25 @@ export class AuthController {
         return this.authService.register(dto);
     }   
 
-    
+    //refresh token
+    @Public()
+    @Post('refresh')
+    @ApiOperation({ summary: 'Refrescar access token usando refresh token' })
+    @ApiResponse({ status: 200, description: 'Access token refrescado exitosamente.', type: AuthResponseDto })
+    @ApiResponse({ status: 401, description: 'Refresh token inválido o expirado.' })
+    @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
+    async refresh(@Body('refresh_token') refreshToken: string): Promise<AuthResponseDto> {
+        return this.authService.refresh(refreshToken);
+    }
+
+    //logout
+    @Post('logout')
+    @ApiOperation({ summary: 'Cerrar sesión (revocar refresh token)' })
+    @ApiResponse({ status: 200, description: 'Sesión cerrada exitosamente.' })
+    @ApiResponse({ status: 401, description: 'No autorizado.' })
+    @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
+    async logout(@CurrentUser() user: any, @Body('refresh_token') refreshToken: string) {
+        await this.authService.logout(user.id);
+        return { message: 'Sesión cerrada exitosamente' };
+    }
 }

@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Param, Body, Query, NotFoundException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -8,9 +8,11 @@ import { User } from './users.entity';
 //GUARDS & DECORATORS
 import { CurrentUser } from '@decorators/current-user.decorator';
 import { Roles } from '@decorators/roles.decorator';
+import { Public } from '../auth';
 
 
 @ApiTags('users')
+@ApiBearerAuth('JWT-auth')  // ✅ Agregar autenticación JWT a todo el controlador
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {

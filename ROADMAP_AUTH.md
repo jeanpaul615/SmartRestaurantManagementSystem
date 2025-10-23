@@ -13,7 +13,7 @@ Aplicar guards globalmente  ----- LISTO
 3. Backend - Refresh Tokens (6 pasos)
 
 Entidad RefreshToken ----- LISTO 
-Endpoints /refresh y /logout
+Endpoints /refresh y /logout 
 Revocación de tokens
 
 4. Backend - Proteger Rutas (6 pasos)
