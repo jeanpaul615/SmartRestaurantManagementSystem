@@ -13,12 +13,12 @@ Aplicar guards globalmente  ----- LISTO
 3. Backend - Refresh Tokens (6 pasos)
 
 Entidad RefreshToken ----- LISTO 
-Endpoints /refresh y /logout 
-Revocación de tokens
+Endpoints /refresh y /logout  ----- LISTO 
+Revocación de tokens ----- LISTO
 
 4. Backend - Proteger Rutas (6 pasos)
 
-Definir roles (admin, waiter, chef, customer)
+Definir roles (admin, waiter, chef, customer) ----- LISTO 
 Proteger controllers: orders, tables, reservations, products, users
 
 5. Frontend - Auth Service & Context (5 pasos)

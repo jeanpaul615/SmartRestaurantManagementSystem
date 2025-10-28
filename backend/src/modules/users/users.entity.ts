@@ -9,7 +9,8 @@ export enum UserRole {
 
     ADMIN = 'admin',
     CUSTOMER = 'customer',
-    STAFF = 'staff',
+    WAITER = 'waiter',
+    CHEF = 'chef',
 }
 
 export enum UserStatus {

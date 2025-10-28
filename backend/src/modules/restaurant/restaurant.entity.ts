@@ -5,6 +5,7 @@ import { Product } from "../products/products.entity";
 import { Reservation } from "../reservations/reservations.entity";
 import { Order } from "../orders/orders.entity";
 
+
 @Entity('restaurants')
 export class Restaurant {
     @PrimaryGeneratedColumn()
