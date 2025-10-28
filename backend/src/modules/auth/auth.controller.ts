@@ -1,5 +1,5 @@
-import { Controller, Post, Body, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Controller, Post, Body, Req, ForbiddenException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { User } from '../users/users.entity';
@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register-auth.dto';
 //GUARDS & DECORATORS
 import { Public } from '@decorators/public.decorator';
 import { CurrentUser } from '@decorators/current-user.decorator';
+import { Roles } from '@decorators/roles.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -31,18 +32,52 @@ export class AuthController {
         return this.authService.login(dto);
     }
 
-    //register
+    //register - Público para clientes, pero solo admins pueden crear admins
     @Public() 
     @Post('register')
-    @ApiOperation({ summary: 'Registrar un nuevo usuario' })
+    @ApiOperation({ 
+        summary: 'Registrar un nuevo usuario',
+        description: 'Cualquiera puede registrarse como cliente. Solo administradores pueden crear otros administradores.'
+    })
     @ApiResponse({ status: 201, description: 'Usuario registrado exitosamente.', type: AuthResponseDto })
     @ApiResponse({ status: 400, description: 'Solicitud inválida.' })
     @ApiResponse({ status: 401, description: 'No autorizado.' })
-    @ApiResponse({ status: 403, description: 'Acceso prohibido.' })
+    @ApiResponse({ status: 403, description: 'Solo administradores pueden crear usuarios admin.' })
     @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-    async register(@Body() dto: RegisterDto): Promise<AuthResponseDto> {
+    async register(
+        @Body() dto: RegisterDto,
+        @CurrentUser() currentUser?: any
+    ): Promise<AuthResponseDto> {
+        // ✅ Si intenta crear un admin, verificar que el usuario actual sea admin
+        if (dto.role === 'admin') {
+            if (!currentUser || currentUser.role !== 'admin') {
+                throw new ForbiddenException('Solo los administradores pueden crear usuarios admin');
+            }
+        }
         return this.authService.register(dto);
-    }   
+    }
+
+    //register admin - Solo para admins
+    @Roles('admin')
+    @ApiBearerAuth('JWT-auth')
+    @Post('register/admin')
+    @ApiOperation({ 
+        summary: 'Registrar un nuevo usuario administrador (Solo admins)',
+        description: 'Endpoint exclusivo para que administradores creen otros administradores.'
+    })
+    @ApiResponse({ status: 201, description: 'Administrador registrado exitosamente.', type: AuthResponseDto })
+    @ApiResponse({ status: 400, description: 'Solicitud inválida.' })
+    @ApiResponse({ status: 401, description: 'No autorizado.' })
+    @ApiResponse({ status: 403, description: 'Solo administradores pueden acceder a este endpoint.' })
+    @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
+    async registerAdmin(
+        @Body() dto: RegisterDto,
+        @CurrentUser() currentUser: any
+    ): Promise<AuthResponseDto> {
+        // Forzar que el rol sea admin
+        dto.role = 'admin';
+        return this.authService.register(dto);
+    }
 
     //refresh token
     @Public()
