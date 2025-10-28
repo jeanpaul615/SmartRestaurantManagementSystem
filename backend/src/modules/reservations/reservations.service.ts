@@ -1,30 +1,139 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-
-import { Reservation } from "./reservations.entity";
-import { CreateReservationDto } from "./dto/create-reservation.dto";
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Reservation } from './reservations.entity';
+import { Restaurant } from '../restaurant/restaurant.entity';
+import { Tables } from '../tables/tables.entity';
+import { User } from '../users/users.entity';
+import { CreateReservationDto } from './dto/create-reservation.dto';
+import { UpdateReservationDto } from './dto/update-reservation.dto';
 
 @Injectable()
-export class ReservationService {
+export class ReservationsService {
     constructor(
         @InjectRepository(Reservation)
-        private reservationRepository: Repository<Reservation>,
+        private readonly reservationRepository: Repository<Reservation>,
+        @InjectRepository(Restaurant)
+        private readonly restaurantRepository: Repository<Restaurant>,
+        @InjectRepository(Tables)
+        private readonly tablesRepository: Repository<Tables>,
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
     ) {}
 
+    async create(createReservationDto: CreateReservationDto, userId: number): Promise<Reservation> {
+        const { restaurantId, tableId, reservationTime, status } = createReservationDto;
 
-    async CreateReservation(dto: CreateReservationDto): Promise<Reservation> {
-        const newReservation = this.reservationRepository.create(dto);
-        return this.reservationRepository.save(newReservation);
+        // Verificar que el restaurante existe
+        const restaurant = await this.restaurantRepository.findOne({
+            where: { id: restaurantId }
+        });
+        if (!restaurant) {
+            throw new NotFoundException(`Restaurante con ID ${restaurantId} no encontrado`);
+        }
+
+        // Verificar que la mesa existe
+        const table = await this.tablesRepository.findOne({
+            where: { id: tableId }
+        });
+        if (!table) {
+            throw new NotFoundException(`Mesa con ID ${tableId} no encontrada`);
+        }
+
+        // Verificar que el usuario existe
+        const user = await this.userRepository.findOne({
+            where: { id: userId }
+        });
+        if (!user) {
+            throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
+        }
+
+        // Verificar que la fecha de reservación no sea en el pasado
+        const reservationDate = new Date(reservationTime);
+        if (reservationDate < new Date()) {
+            throw new BadRequestException('La fecha de reservación no puede ser en el pasado');
+        }
+
+        const reservation = this.reservationRepository.create({
+            reservationTime: reservationDate,
+            status: status || 'pending',
+            restaurant,
+            tables: table,
+            user,
+        });
+
+        return await this.reservationRepository.save(reservation);
     }
 
-    async FindAll(): Promise<Reservation[]> {
-        return this.reservationRepository.find({
-            take: 100,
-            cache: {
-                id: 'reservations-list',
-                milliseconds: 60000, // cache por 60 segundos
-            },
+    async findAll(userId?: number, restaurantId?: number): Promise<Reservation[]> {
+        const queryBuilder = this.reservationRepository
+            .createQueryBuilder('reservation')
+            .leftJoinAndSelect('reservation.user', 'user')
+            .leftJoinAndSelect('reservation.restaurant', 'restaurant')
+            .leftJoinAndSelect('reservation.tables', 'tables');
+
+        if (userId) {
+            queryBuilder.andWhere('reservation.user.id = :userId', { userId });
+        }
+
+        if (restaurantId) {
+            queryBuilder.andWhere('reservation.restaurant.id = :restaurantId', { restaurantId });
+        }
+
+        queryBuilder.orderBy('reservation.reservationTime', 'ASC');
+
+        return await queryBuilder.getMany();
+    }
+
+    async findOne(id: number): Promise<Reservation> {
+        const reservation = await this.reservationRepository.findOne({
+            where: { id },
+            relations: ['user', 'restaurant', 'tables'],
         });
+
+        if (!reservation) {
+            throw new NotFoundException(`Reservación con ID ${id} no encontrada`);
+        }
+
+        return reservation;
+    }
+
+    async findByUser(userId: number): Promise<Reservation[]> {
+        return this.findAll(userId);
+    }
+
+    async findByRestaurant(restaurantId: number): Promise<Reservation[]> {
+        return this.findAll(undefined, restaurantId);
+    }
+
+    async update(id: number, updateReservationDto: UpdateReservationDto): Promise<Reservation> {
+        const reservation = await this.findOne(id);
+
+        if (updateReservationDto.reservationTime) {
+            const newDate = new Date(updateReservationDto.reservationTime);
+            if (newDate < new Date()) {
+                throw new BadRequestException('La fecha de reservación no puede ser en el pasado');
+            }
+            reservation.reservationTime = newDate;
+        }
+
+        if (updateReservationDto.status) {
+            reservation.status = updateReservationDto.status;
+        }
+
+        return await this.reservationRepository.save(reservation);
+    }
+
+    async remove(id: number): Promise<void> {
+        const reservation = await this.findOne(id);
+        await this.reservationRepository.remove(reservation);
+    }
+
+    async cancelReservation(id: number): Promise<Reservation> {
+        return this.update(id, { status: 'cancelled' });
+    }
+
+    async confirmReservation(id: number): Promise<Reservation> {
+        return this.update(id, { status: 'confirmed' });
     }
 }

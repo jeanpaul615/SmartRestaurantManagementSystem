@@ -19,7 +19,7 @@ Revocación de tokens ----- LISTO
 4. Backend - Proteger Rutas (6 pasos)
 
 Definir roles (admin, waiter, chef, customer) ----- LISTO 
-Proteger controllers: orders, tables, reservations, products, users
+Proteger controllers: orders, tables, reservations, products, users ----- LISTO 
 
 5. Frontend - Auth Service & Context (5 pasos)
 

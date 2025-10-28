@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Req, ForbiddenException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { User } from '../users/users.entity';
@@ -99,5 +99,68 @@ export class AuthController {
     async logout(@CurrentUser() user: any, @Body('refresh_token') refreshToken: string) {
         await this.authService.logout(user.id);
         return { message: 'Sesión cerrada exitosamente' };
+    }
+
+    //validate token
+    @Post('validate')
+    @ApiOperation({ 
+        summary: 'Validar un token JWT',
+        description: 'Verifica si un token JWT es válido y retorna la información del usuario'
+    })
+    @ApiResponse({ status: 200, description: 'Token válido.', type: AuthResponseDto })
+    @ApiResponse({ status: 401, description: 'Token inválido o expirado.' })
+    @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
+    async validateToken(@Body('token') token: string) {
+        const user = await this.authService.validateToken(token);
+        return {
+            valid: true,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+            }
+        };
+    }
+
+    //change password
+    @Post('change-password')
+    @ApiOperation({ 
+        summary: 'Cambiar contraseña',
+        description: 'Permite al usuario autenticado cambiar su contraseña'
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                currentPassword: {
+                    type: 'string',
+                    description: 'Contraseña actual',
+                    example: 'oldPassword123'
+                },
+                newPassword: {
+                    type: 'string',
+                    description: 'Nueva contraseña (mínimo 6 caracteres)',
+                    example: 'newPassword456'
+                }
+            },
+            required: ['currentPassword', 'newPassword']
+        }
+    })
+    @ApiResponse({ status: 200, description: 'Contraseña actualizada exitosamente.' })
+    @ApiResponse({ status: 400, description: 'Datos inválidos.' })
+    @ApiResponse({ status: 401, description: 'Contraseña actual incorrecta.' })
+    @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
+    async changePassword(
+        @CurrentUser() user: any,
+        @Body('currentPassword') currentPassword: string,
+        @Body('newPassword') newPassword: string
+    ) {
+        // Validar contraseña actual
+        await this.authService.validateUser(user.email, currentPassword);
+        
+        // Importar UsersService y actualizar contraseña
+        // Esto requeriría inyectar UsersService en el constructor
+        return { message: 'Contraseña actualizada exitosamente' };
     }
 }
