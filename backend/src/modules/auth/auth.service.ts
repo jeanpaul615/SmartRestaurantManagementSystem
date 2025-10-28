@@ -42,8 +42,8 @@ export class AuthService {
     private generateAccessToken(user: any): string {
         const payload = this.createTokenPayload(user);
         const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN') || '1h';
-        
-        return this.jwtService.sign(payload, { expiresIn });
+
+        return this.jwtService.sign(payload as any, { expiresIn: expiresIn as any });
     }
 
     /**
@@ -56,7 +56,7 @@ export class AuthService {
         };
         const expiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d';
         
-        return this.jwtService.sign(payload, { expiresIn });
+        return this.jwtService.sign(payload as any, { expiresIn: expiresIn as any });
     }
 
     /**
