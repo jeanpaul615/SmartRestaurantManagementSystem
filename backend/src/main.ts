@@ -3,6 +3,8 @@ import { AppModule } from '@app/app.module';
 import { setupSwagger } from '@config/Swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from '@common/filters/all-exceptions.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { ExpressAdapter } from '@nestjs/platform-express';
 
 // ✅ Manejo de errores no capturados
 process.on('uncaughtException', (error) => {
@@ -19,7 +21,10 @@ process.on('unhandledRejection', (reason, promise) => {
 
 async function bootstrap() {
   try {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(
+      AppModule,
+      new ExpressAdapter(),
+    );
 
     // ✅ Filtro global de excepciones
     app.useGlobalFilters(new AllExceptionsFilter());

@@ -1,2 +1,40 @@
-/node_modules
-/dist
+# ========================================
+# 📦 Dependencias (NO subir a GitHub)
+# ========================================
+node_modules/
+package-lock.json.backup
+
+# ========================================
+# 🏗️ Build / Compilados
+# ========================================
+dist/
+*.tsbuildinfo
+
+# ========================================
+# 🔐 Variables de entorno (NUNCA subir)
+# ========================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ========================================
+# 📝 Logs
+# ========================================
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ========================================
+# 🧪 Testing
+# ========================================
+coverage/
+.nyc_output/
+
+# ========================================
+# 💾 Cache
+# ========================================
+.cache/
+.eslintcache
