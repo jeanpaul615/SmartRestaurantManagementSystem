@@ -19,6 +19,9 @@ export class Product {
   @Column({ default: 0 })
   stock: number;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  imageUrl: string;
+
   @ManyToOne(() => Restaurant, restaurant => restaurant.products)
   restaurant: Restaurant;
 

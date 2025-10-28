@@ -6,6 +6,9 @@ import { AppService } from './app.service';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { RestaurantModule } from '@/modules/restaurant/restaurant.module';
+import { OrdersModule } from '@/modules/orders/orders.module';
+import { OrderItemsModule } from '@/modules/order_items/order_items.module';
+import { NotificationsModule } from '@/modules/notifications/notifications.module';
 import { DatabaseConfig } from '@config/Database';
 import { ConfigModule } from '@nestjs/config';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
@@ -20,6 +23,9 @@ import { RolesGuard } from '@/modules/auth/guards/roles.guard';
     UsersModule,
     AuthModule,
     RestaurantModule,
+    OrdersModule,
+    OrderItemsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
