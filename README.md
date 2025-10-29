@@ -9,7 +9,7 @@ Plataforma integral para la gestión digital avanzada de restaurantes, con reser
 | Capa         | Tecnología / Funcionalidad                          |
 |--------------|---------------------------------------------------|
 | Frontend     | React.js + Tailwind CSS + Zustand + React Hook Form |
-| Backend      | Nestjs + PostgreSQL + Redis            |
+| Backend      | Nestjs + PostgreSQL + TypeORM            |
 | Eventos      | Apache Kafka (gestión de eventos: pedidos, cambios) |
 | Cola de tareas | BullMQ (notificaciones, generación de tickets)  |
 | Tiempo real  | WebSocket (actualización en vivo de mesas y pedidos) |
