@@ -26,6 +26,20 @@ async function bootstrap() {
       new ExpressAdapter(),
     );
 
+    // ✅ Configuración de CORS
+    app.enableCors({
+      origin: [
+        'http://localhost:3000',        // Frontend local
+        'http://localhost:3001',        // Frontend alternativo
+        process.env.FRONTEND_URL || '', // Frontend en producción
+      ].filter(Boolean), // Elimina valores vacíos
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+      credentials: true, // Permite envío de cookies
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+    });
+
     // ✅ Filtro global de excepciones
     app.useGlobalFilters(new AllExceptionsFilter());
 
