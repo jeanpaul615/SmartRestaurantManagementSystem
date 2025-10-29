@@ -1,4 +1,31 @@
+"use client";
+
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import Link from "next/link";
+
 export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
@@ -13,13 +40,15 @@ export default function Home() {
             </div>
             <nav className="hidden md:flex space-x-6">
               <a href="#" className="text-slate-600 hover:text-indigo-600 transition-colors font-medium">Inicio</a>
-              <a href="#" className="text-slate-600 hover:text-indigo-600 transition-colors font-medium">Menú</a>
-              <a href="#" className="text-slate-600 hover:text-indigo-600 transition-colors font-medium">Reservas</a>
-              <a href="#" className="text-slate-600 hover:text-indigo-600 transition-colors font-medium">Contacto</a>
+              <a href="#features" className="text-slate-600 hover:text-indigo-600 transition-colors font-medium">Características</a>
+              <a href="#contact" className="text-slate-600 hover:text-indigo-600 transition-colors font-medium">Contacto</a>
             </nav>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-sm">
+            <Link 
+              href="/login"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-sm"
+            >
               Iniciar Sesión
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -39,7 +68,7 @@ export default function Home() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div id="features" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {/* Feature 1 */}
           <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow p-6 border border-slate-100">
             <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
@@ -128,18 +157,24 @@ export default function Home() {
             Comienza a usar nuestro sistema de gestión y mejora la experiencia de tus clientes
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-slate-50 transition-colors shadow-lg">
+            <Link 
+              href="/login"
+              className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-slate-50 transition-colors shadow-lg"
+            >
               Empezar Ahora
-            </button>
-            <button className="bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-800 transition-colors border-2 border-white/20">
+            </Link>
+            <Link 
+              href="/login"
+              className="bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-800 transition-colors border-2 border-white/20"
+            >
               Ver Demo
-            </button>
+            </Link>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 mt-20">
+      <footer id="contact" className="bg-white border-t border-slate-200 mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-slate-600 text-sm">

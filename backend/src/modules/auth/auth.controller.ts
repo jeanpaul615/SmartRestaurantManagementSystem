@@ -1,5 +1,7 @@
-import { Controller, Post, Body, Req, ForbiddenException } from '@nestjs/common';
+import { Controller, Post, Body, Req, ForbiddenException, Get, UseGuards, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
 
 import { AuthService } from './auth.service';
 import { User } from '../users/users.entity';
@@ -162,5 +164,41 @@ export class AuthController {
         // Importar UsersService y actualizar contraseña
         // Esto requeriría inyectar UsersService en el constructor
         return { message: 'Contraseña actualizada exitosamente' };
+    }
+
+    // ========================================
+    // 🔐 GOOGLE OAUTH ENDPOINTS
+    // ========================================
+
+    @Public()
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
+    @ApiOperation({ 
+        summary: 'Iniciar autenticación con Google',
+        description: 'Redirige al usuario a la página de inicio de sesión de Google'
+    })
+    @ApiResponse({ status: 302, description: 'Redirección a Google OAuth.' })
+    async googleAuth(@Req() req) {
+        // Este endpoint redirige automáticamente a Google
+    }
+
+    @Public()
+    @Get('google/callback')
+    @UseGuards(AuthGuard('google'))
+    @ApiOperation({ 
+        summary: 'Callback de Google OAuth',
+        description: 'Google redirige aquí después de la autenticación exitosa'
+    })
+    @ApiResponse({ status: 200, description: 'Autenticación con Google exitosa.', type: AuthResponseDto })
+    @ApiResponse({ status: 401, description: 'Autenticación fallida.' })
+    async googleAuthRedirect(@Req() req, @Res() res: Response) {
+        // Procesar el usuario de Google y generar tokens
+        const result = await this.authService.googleLogin(req.user);
+        
+        // Redirigir al frontend con los tokens en la URL (o usar cookies)
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        const redirectUrl = `${frontendUrl}/auth/callback?access_token=${result.access_token}&refresh_token=${result.refresh_token}`;
+        
+        return res.redirect(redirectUrl);
     }
 }
