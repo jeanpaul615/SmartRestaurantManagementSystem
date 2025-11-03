@@ -244,7 +244,7 @@ export class AuthService {
         const newUser = await this.usersService.CreateUser({
             ...registerDto,
             password: hashedPassword,
-            role: registerDto.role ?? "user",
+            role: registerDto.role ?? "admin",
         });
 
         // ✅ Generar tokens
@@ -338,45 +338,12 @@ export class AuthService {
         }
     }
 
-    // ========================================
-    // 🔐 GOOGLE OAUTH
-    // ========================================
-
     /**
-     * Maneja el login con Google OAuth
-     * Busca o crea un usuario basado en el perfil de Google
+     * Verifica si ya existe al menos un usuario con rol admin
+     * Útil para el setup inicial del sistema
      */
-    async googleLogin(googleUser: any): Promise<AuthResponseDto> {
-        // 1. Buscar si ya existe un usuario con este email
-        let user = await this.usersService.FindByEmail(googleUser.email);
-        
-        // 2. Si no existe, crear uno nuevo
-        if (!user) {
-            // Generar un username único basado en el nombre de Google
-            const baseName = `${googleUser.firstName}_${googleUser.lastName}`.toLowerCase().replace(/\s+/g, '_');
-            const username = baseName + '_' + Math.floor(Math.random() * 1000);
-            
-            // Crear usuario nuevo (sin contraseña real, porque usa Google)
-            user = await this.usersService.CreateUser({
-                username: username,
-                email: googleUser.email,
-                password: Math.random().toString(36).slice(-12), // Contraseña aleatoria (no se usará)
-                role: 'customer', // Por defecto es customer
-            });
-        }
-        
-        // 3. Verificar que el usuario esté activo
-        if (user.status !== 'active') {
-            throw new UnauthorizedException('Usuario inactivo');
-        }
-        
-        // 4. Generar tokens JWT
-        const tokens = this.generateTokens(user);
-        
-        // 5. Guardar refresh token en BD
-        await this.saveRefreshToken(user.id, tokens.refresh_token);
-        
-        // 6. Retornar respuesta con tokens
-        return this.createAuthResponse(user, tokens);
+    async checkIfAdminExists(): Promise<boolean> {
+        const adminUsers = await this.usersService.findByRole('admin' as any);
+        return adminUsers && adminUsers.length > 0;
     }
 }

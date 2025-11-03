@@ -21,6 +21,11 @@ export class RolesGuard implements CanActivate {
     // Obtener el usuario del request (ya adjuntado por JwtAuthGuard)
     const { user } = context.switchToHttp().getRequest();
 
+    // Si no hay usuario (ruta pública), denegar acceso
+    if (!user) {
+      throw new ForbiddenException('Autenticación requerida para acceder a este recurso');
+    }
+
     // Verificar si el usuario tiene alguno de los roles requeridos
     const hasRole = requiredRoles.some((role) => user.role === role);
 

@@ -20,13 +20,12 @@ export class UsersService {
             throw new ConflictException('El email ya está registrado');
         }
 
-        // Hashear la contraseña
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-
+        // NO hashear aquí - debe venir hasheada desde AuthService
+        // La contraseña ya viene hasheada desde el AuthService
         const { role, ...rest } = createUserDto;
         const newUser = this.usersRepository.create({
             ...rest,
-            password: hashedPassword,
+            password: createUserDto.password, // Ya viene hasheada
             role: role as any 
         });
 
