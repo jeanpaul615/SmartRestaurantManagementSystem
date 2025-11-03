@@ -1,7 +1,7 @@
-import { Controller, Post, Body, Req, ForbiddenException, Get, UseGuards, Res } from '@nestjs/common';
+import { Controller, Post, Body, Req, ForbiddenException, Get, UseGuards, Res, Response as NestResponse } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 
 import { AuthService } from './auth.service';
 import { User } from '../users/users.entity';
@@ -21,6 +21,35 @@ import { Roles } from '@decorators/roles.decorator';
 export class AuthController {
     constructor(private readonly authService: AuthService) {
     }
+
+    // 🍪 Helper: Configurar cookies de autenticación
+    private setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
+        const isProduction = process.env.NODE_ENV === 'production';
+        
+        // Cookie para Access Token (más corta, 15 minutos)
+        res.cookie('access_token', accessToken, {
+            httpOnly: true,           // No accesible desde JavaScript
+            secure: isProduction,     // Solo HTTPS en producción
+            sameSite: 'strict',       // Protección CSRF
+            maxAge: 15 * 60 * 1000,   // 15 minutos
+            path: '/',
+        });
+
+        // Cookie para Refresh Token (más larga, 7 días)
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+            path: '/',
+        });
+    }
+
+    // 🍪 Helper: Limpiar cookies de autenticación
+    private clearAuthCookies(res: Response): void {
+        res.clearCookie('access_token', { path: '/' });
+        res.clearCookie('refresh_token', { path: '/' });
+    }
     //Login
     @Public() 
     @Post('login')
@@ -30,8 +59,20 @@ export class AuthController {
     @ApiResponse({ status: 401, description: 'No autorizado.' })
     @ApiResponse({ status: 403, description: 'Acceso prohibido.' })
     @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-    async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
-        return this.authService.login(dto);
+    async login(
+        @Body() dto: LoginDto,
+        @Res({ passthrough: true }) res: Response
+    ) {
+        const authResponse = await this.authService.login(dto);
+        
+        // 🍪 Configurar cookies HttpOnly
+        this.setAuthCookies(res, authResponse.access_token, authResponse.refresh_token);
+        
+        // Retornar solo la info del usuario (NO los tokens)
+        return {
+            user: authResponse.user,
+            message: 'Login exitoso'
+        };
     }
 
     //register - Público para clientes, pero solo admins pueden crear admins
@@ -48,18 +89,26 @@ export class AuthController {
     @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
     async register(
         @Body() dto: RegisterDto,
+        @Res({ passthrough: true }) res: Response,
         @CurrentUser() currentUser?: any
-    ): Promise<AuthResponseDto> {
+    ) {
         // ✅ Si intenta crear un admin, verificar que el usuario actual sea admin
         // VALIDACIÓN TEMPORALMENTE DESHABILITADA PARA REGISTRO DE PRIMER ADMIN
-        /*
         if (dto.role === 'admin') {
             if (!currentUser || currentUser.role !== 'admin') {
                 throw new ForbiddenException('Solo los administradores pueden crear usuarios admin');
             }
         }
-        */
-        return this.authService.register(dto);
+        const authResponse = await this.authService.register(dto);
+        
+        // 🍪 Configurar cookies HttpOnly
+        this.setAuthCookies(res, authResponse.access_token, authResponse.refresh_token);
+        
+        // Retornar solo la info del usuario (NO los tokens)
+        return {
+            user: authResponse.user,
+            message: 'Usuario registrado exitosamente'
+        };
     }
 
     //register admin - Solo para admins
@@ -87,12 +136,30 @@ export class AuthController {
     //refresh token
     @Public()
     @Post('refresh')
-    @ApiOperation({ summary: 'Refrescar access token usando refresh token' })
+    @ApiOperation({ summary: 'Refrescar access token usando refresh token desde cookies' })
     @ApiResponse({ status: 200, description: 'Access token refrescado exitosamente.', type: AuthResponseDto })
     @ApiResponse({ status: 401, description: 'Refresh token inválido o expirado.' })
     @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-    async refresh(@Body('refresh_token') refreshToken: string): Promise<AuthResponseDto> {
-        return this.authService.refresh(refreshToken);
+    async refresh(
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response
+    ) {
+        // Obtener refresh token desde cookies
+        const refreshToken = req.cookies?.refresh_token;
+        
+        if (!refreshToken) {
+            throw new ForbiddenException('Refresh token no encontrado');
+        }
+        
+        const authResponse = await this.authService.refresh(refreshToken);
+        
+        // 🍪 Actualizar cookies con nuevos tokens
+        this.setAuthCookies(res, authResponse.access_token, authResponse.refresh_token);
+        
+        return {
+            user: authResponse.user,
+            message: 'Token refrescado exitosamente'
+        };
     }
 
     //logout
@@ -101,8 +168,15 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'Sesión cerrada exitosamente.' })
     @ApiResponse({ status: 401, description: 'No autorizado.' })
     @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-    async logout(@CurrentUser() user: any, @Body('refresh_token') refreshToken: string) {
+    async logout(
+        @CurrentUser() user: any,
+        @Res({ passthrough: true }) res: Response
+    ) {
         await this.authService.logout(user.id);
+        
+        // 🍪 Limpiar cookies
+        this.clearAuthCookies(res);
+        
         return { message: 'Sesión cerrada exitosamente' };
     }
 

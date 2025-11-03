@@ -5,6 +5,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from '@common/filters/all-exceptions.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import * as cookieParser from 'cookie-parser';
 
 // ✅ Manejo de errores no capturados
 process.on('uncaughtException', (error) => {
@@ -25,6 +26,9 @@ async function bootstrap() {
       AppModule,
       new ExpressAdapter(),
     );
+
+    // 🍪 Habilitar cookie-parser
+    app.use(cookieParser());
 
     // ✅ Configuración de CORS
     app.enableCors({

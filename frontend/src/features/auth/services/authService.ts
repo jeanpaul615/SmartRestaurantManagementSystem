@@ -18,17 +18,15 @@ export interface RegisterData {
   role?: 'customer' | 'admin' | 'waiter' | 'chef';
 }
 
+// ⚠️ Nueva respuesta sin tokens (van en cookies)
 export interface AuthResponse {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-  expires_in: number;
   user: {
     id: number;
     username: string;
     email: string;
     role: string;
   };
+  message: string;
 }
 
 export interface User {
@@ -38,6 +36,9 @@ export interface User {
   role: string;
 }
 
+// 💾 Estado en memoria para el usuario actual
+let currentUser: User | null = null;
+
 // ========================================
 // 🔧 SERVICIO DE AUTENTICACIÓN
 // ========================================
@@ -45,16 +46,16 @@ export interface User {
 export const authService = {
   /**
    * 🔑 LOGIN - Iniciar sesión
+   * Los tokens ahora se envían automáticamente en cookies HttpOnly
    */
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>('/auth/login', credentials);
     
-    // Guardar tokens en localStorage
-    if (response.data.access_token) {
-      localStorage.setItem('access_token', response.data.access_token);
-      localStorage.setItem('refresh_token', response.data.refresh_token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-    }
+    // 💾 Guardar usuario en memoria
+    currentUser = response.data.user;
+    
+    // 💾 También en sessionStorage para persistir entre reloads (opcional)
+    sessionStorage.setItem('user', JSON.stringify(response.data.user));
     
     return response.data;
   },
@@ -65,36 +66,25 @@ export const authService = {
   register: async (data: RegisterData): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>('/auth/register', data);
     
-    // Guardar tokens en localStorage
-    if (response.data.access_token) {
-      localStorage.setItem('access_token', response.data.access_token);
-      localStorage.setItem('refresh_token', response.data.refresh_token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-    }
+    // 💾 Guardar usuario en memoria
+    currentUser = response.data.user;
+    
+    // 💾 También en sessionStorage
+    sessionStorage.setItem('user', JSON.stringify(response.data.user));
     
     return response.data;
   },
 
   /**
    * 🔄 REFRESH - Refrescar access token
+   * El refresh token se envía automáticamente en cookies
    */
   refreshToken: async (): Promise<AuthResponse> => {
-    const refresh_token = localStorage.getItem('refresh_token');
+    const response = await axiosInstance.post<AuthResponse>('/auth/refresh', {});
     
-    if (!refresh_token) {
-      throw new Error('No refresh token available');
-    }
-    
-    const response = await axiosInstance.post<AuthResponse>('/auth/refresh', {
-      refresh_token
-    });
-    
-    // Actualizar tokens
-    if (response.data.access_token) {
-      localStorage.setItem('access_token', response.data.access_token);
-      localStorage.setItem('refresh_token', response.data.refresh_token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-    }
+    // 💾 Actualizar usuario en memoria
+    currentUser = response.data.user;
+    sessionStorage.setItem('user', JSON.stringify(response.data.user));
     
     return response.data;
   },
@@ -103,54 +93,63 @@ export const authService = {
    * 🚪 LOGOUT - Cerrar sesión
    */
   logout: async (): Promise<void> => {
-    const refresh_token = localStorage.getItem('refresh_token');
-    
     try {
-      // Llamar al endpoint de logout del backend
-      await axiosInstance.post('/auth/logout', { refresh_token });
+      // Llamar al endpoint de logout (limpia las cookies en el backend)
+      await axiosInstance.post('/auth/logout', {});
     } catch (error) {
       console.error('Error during logout:', error);
     } finally {
-      // Siempre limpiar el localStorage
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
+      // Limpiar estado en memoria y sessionStorage
+      currentUser = null;
+      sessionStorage.removeItem('user');
     }
   },
 
   /**
-   * ✅ VALIDATE TOKEN - Validar si el token es válido
-   */
-  validateToken: async (token: string): Promise<{ valid: boolean; user: User }> => {
-    const response = await axiosInstance.post('/auth/validate', { token });
-    return response.data;
-  },
-
-  /**
-   * 👤 GET CURRENT USER - Obtener usuario actual desde localStorage
+   * 👤 GET CURRENT USER - Obtener usuario actual desde memoria o sessionStorage
    */
   getCurrentUser: (): User | null => {
-    const userStr = localStorage.getItem('user');
+    // Primero intentar desde memoria
+    if (currentUser) return currentUser;
+    
+    // Si no está en memoria, intentar desde sessionStorage
+    const userStr = sessionStorage.getItem('user');
     if (!userStr) return null;
     
     try {
-      return JSON.parse(userStr);
+      currentUser = JSON.parse(userStr);
+      return currentUser;
     } catch {
       return null;
     }
   },
 
   /**
-   * 🔐 GET ACCESS TOKEN
+   * � SET CURRENT USER - Establecer usuario actual (útil después de refresh)
    */
-  getAccessToken: (): string | null => {
-    return localStorage.getItem('access_token');
+  setCurrentUser: (user: User | null): void => {
+    currentUser = user;
+    if (user) {
+      sessionStorage.setItem('user', JSON.stringify(user));
+    } else {
+      sessionStorage.removeItem('user');
+    }
   },
 
   /**
    * ✅ IS AUTHENTICATED - Verificar si el usuario está autenticado
+   * Ahora verificamos si hay un usuario en memoria/sessionStorage
    */
   isAuthenticated: (): boolean => {
-    return !!localStorage.getItem('access_token');
+    return !!authService.getCurrentUser();
+  },
+
+  /**
+   * 🔐 GET ACCESS TOKEN - Ya NO se usa porque el token va en cookies
+   * @deprecated Los tokens ahora se manejan automáticamente en cookies HttpOnly
+   */
+  getAccessToken: (): null => {
+    console.warn('getAccessToken() is deprecated. Tokens are now in HttpOnly cookies.');
+    return null;
   },
 };

@@ -10,27 +10,20 @@ export const axiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true, // 🍪 IMPORTANTE: Habilitar envío de cookies
 })
 
-// ✅ Request Interceptor: Agregar token a cada request
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
 // ✅ Response Interceptor: Manejar errores y refresh automático
+// 🍪 Ya NO necesitamos agregar el token manualmente - se envía en cookies
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: any) => {
   failedQueue.forEach(prom => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token);
+      prom.resolve();
     }
   });
   
@@ -49,8 +42,8 @@ axiosInstance.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then(token => {
-          originalRequest.headers['Authorization'] = 'Bearer ' + token;
+        }).then(() => {
+          // Ya no necesitamos pasar el token - va en cookies
           return axiosInstance(originalRequest);
         }).catch(err => {
           return Promise.reject(err);
@@ -60,44 +53,28 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refresh_token');
-
-      if (!refreshToken) {
-        // No hay refresh token, redirigir a login
-        localStorage.clear();
-        window.location.href = '/login';
-        return Promise.reject(error);
-      }
-
       try {
-        // Intentar refrescar el token
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          refresh_token: refreshToken
-        });
-
-        const { access_token, refresh_token: newRefreshToken } = response.data;
-
-        // Guardar nuevos tokens
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('refresh_token', newRefreshToken);
-
-        // Actualizar header del request original
-        originalRequest.headers['Authorization'] = 'Bearer ' + access_token;
+        // Intentar refrescar el token (cookies se envían automáticamente)
+        await axios.post(
+          `${API_BASE_URL}/auth/refresh`, 
+          {},
+          { withCredentials: true } // Importante para enviar cookies
+        );
 
         // Procesar cola de requests pendientes
-        processQueue(null, access_token);
+        processQueue(null);
 
         isRefreshing = false;
 
-        // Reintentar el request original
+        // Reintentar el request original (las nuevas cookies ya están configuradas)
         return axiosInstance(originalRequest);
 
       } catch (refreshError) {
         // Refresh falló, limpiar y redirigir
-        processQueue(refreshError, null);
+        processQueue(refreshError);
         isRefreshing = false;
         
-        localStorage.clear();
+        sessionStorage.clear();
         window.location.href = '/login';
         
         return Promise.reject(refreshError);
