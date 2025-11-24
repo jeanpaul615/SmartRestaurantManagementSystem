@@ -1,36 +1,74 @@
 // frontend/src/features/auth/pages/LoginPage.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService';
+import { useAuth } from '../store/AuthContext';
 import Bg_Login from '../../../assets/Bg.jpg';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, login: authLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // Redirigir al dashboard si ya está autenticado
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setIsLoading(true);
 
-    console.log('🔐 Intentando login con:', { email, password });
-
     try {
-      const response = await authService.login({ email, password });
-      console.log('✅ Login exitoso:', response);
-      navigate('/dashboard');
+      // Usar el login del contexto de autenticación
+      await authLogin({ email, password });
+      
+      // Mostrar mensaje de éxito
+      setSuccessMessage('¡Login exitoso! Redirigiendo al dashboard...');
+      
+      // El AuthContext manejará la redirección
     } catch (err: any) {
       console.error('❌ Error en login:', err);
-      console.error('Response:', err.response);
-      console.error('Message:', err.message);
       
-      const errorMessage = err.response?.data?.message 
-        || err.message 
-        || 'Error al conectar con el servidor. Verifica que el backend esté corriendo.';
+      // Mejorar el manejo de errores con mensajes específicos
+      let errorMessage = 'Error al iniciar sesión';
+      
+      if (err.response) {
+        // El servidor respondió con un código de error
+        const status = err.response.status;
+        const serverMessage = err.response.data?.message;
+        
+        switch (status) {
+          case 401:
+            errorMessage = 'Email o contraseña incorrectos. Por favor verifica tus credenciales.';
+            break;
+          case 403:
+            errorMessage = 'Acceso denegado. Tu cuenta puede estar inactiva.';
+            break;
+          case 404:
+            errorMessage = 'Servicio no encontrado. Verifica que el backend esté corriendo.';
+            break;
+          case 500:
+            errorMessage = 'Error en el servidor. Por favor intenta más tarde.';
+            break;
+          default:
+            errorMessage = serverMessage || `Error ${status}: ${err.response.statusText}`;
+        }
+      } else if (err.request) {
+        // La petición se hizo pero no hubo respuesta
+        errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión y que el backend esté corriendo en http://localhost:8000';
+      } else {
+        // Otro tipo de error
+        errorMessage = err.message || 'Error desconocido al iniciar sesión';
+      }
       
       setError(errorMessage);
     } finally {
@@ -99,12 +137,67 @@ export const LoginPage: React.FC = () => {
             <p className="text-sm sm:text-base text-gray-600">Ingresa tus credenciales para acceder</p>
           </div>
 
-          {/* Mensaje de error */}
+          {/* Mensaje de error mejorado */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg shadow-sm animate-shake">
               <div className="flex items-start gap-3">
-                <span className="text-red-500 text-lg">⚠️</span>
-                <p className="text-sm text-red-700">{error}</p>
+                <div className="flex-shrink-0 mt-0.5">
+                  <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-red-800 mb-1">Error al iniciar sesión</h3>
+                  <p className="text-sm text-red-700">{error}</p>
+                  {error.includes('backend') && (
+                    <div className="mt-2 text-xs text-red-600 bg-red-100 rounded p-2">
+                      <p className="font-semibold mb-1">💡 Soluciones posibles:</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Verifica que el backend esté corriendo</li>
+                        <li>Ejecuta: <code className="bg-red-200 px-1 rounded">cd backend && npm run start:dev</code></li>
+                        <li>Verifica que el puerto 8000 esté disponible</li>
+                      </ul>
+                    </div>
+                  )}
+                  {error.includes('incorrectos') && (
+                    <div className="mt-2 text-xs text-red-600 bg-red-100 rounded p-2">
+                      <p className="font-semibold mb-1">💡 ¿Necesitas ayuda?</p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Verifica que el email esté escrito correctamente</li>
+                        <li>Asegúrate de que la contraseña sea la correcta</li>
+                        <li>Si no tienes cuenta, regístrate primero</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                <button 
+                  onClick={() => setError('')}
+                  className="flex-shrink-0 text-red-400 hover:text-red-600 transition"
+                >
+                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Mensaje de éxito */}
+          {successMessage && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm animate-fade-in">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 mt-0.5">
+                  <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-green-800 mb-1">¡Éxito!</h3>
+                  <p className="text-sm text-green-700">{successMessage}</p>
+                </div>
+                <div className="flex-shrink-0">
+                  <div className="w-5 h-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
               </div>
             </div>
           )}

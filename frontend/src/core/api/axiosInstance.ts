@@ -35,6 +35,22 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Logging mejorado de errores
+    if (error.response) {
+      console.error('❌ Error del servidor:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        message: error.response.data?.message,
+        url: originalRequest?.url
+      });
+    } else if (error.request) {
+      console.error('❌ Sin respuesta del servidor:', {
+        message: 'No se pudo conectar con el backend',
+        url: originalRequest?.url,
+        baseURL: API_BASE_URL
+      });
+    }
+
     // Si el error es 401 y no es un retry
     if (error.response?.status === 401 && !originalRequest._retry) {
       
@@ -75,7 +91,6 @@ axiosInstance.interceptors.response.use(
         isRefreshing = false;
         
         sessionStorage.clear();
-        window.location.href = '/login';
         
         return Promise.reject(refreshError);
       }

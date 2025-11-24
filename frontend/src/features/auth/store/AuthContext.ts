@@ -43,18 +43,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initAuth = async () => {
       try {
         const currentUser = authService.getCurrentUser();
-        const token = authService.getAccessToken();
 
-        if (currentUser && token) {
-          // Verificar que el token siga siendo válido
-          try {
-            await authService.validateToken(token);
-            setUser(currentUser);
-          } catch {
-            // Token inválido, limpiar
-            await authService.logout();
-            setUser(null);
-          }
+        if (currentUser) {
+          setUser(currentUser);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -77,20 +68,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       toast.success(`¡Bienvenido, ${response.user.username}!`);
       
-      // Redirigir según el rol
-      switch (response.user.role) {
-        case 'admin':
-          navigate('/admin/dashboard');
-          break;
-        case 'waiter':
-          navigate('/waiter/tables');
-          break;
-        case 'chef':
-          navigate('/kitchen/orders');
-          break;
-        default:
-          navigate('/menu');
-      }
+      // Redirigir al dashboard principal
+      navigate('/dashboard');
     } catch (error: any) {
       const message = error.response?.data?.message || 'Error al iniciar sesión';
       toast.error(message);

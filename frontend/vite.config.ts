@@ -16,5 +16,13 @@ export default defineConfig({
     host: true,              // Permite acceso desde la red local
     strictPort: true,        // Falla si el puerto está ocupado (en lugar de buscar otro)
     cors: true,              // Habilita CORS
+    proxy: {
+      // Proxy para que las cookies HttpOnly funcionen
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
 })

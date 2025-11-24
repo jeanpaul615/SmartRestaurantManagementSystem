@@ -1,6 +1,9 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { ProtectedRoute } from './ProtectedRoute';
+import { RootRedirect } from './RootRedirect';
+import { DashboardLayout } from '@/features/admin/layouts/DashboardLayout';
+import { DashboardHome } from '@/features/admin/pages/DashboardHome';
 
 export const AppRouter = () => {
   return (
@@ -10,16 +13,26 @@ export const AppRouter = () => {
           ======================================== */}
       <Route path="/login" element={<LoginPage />} />
       
-      {/* Redirigir raíz a login */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      {/* Redirigir raíz según autenticación */}
+      <Route path="/" element={<RootRedirect />} />
 
       {/* ========================================
           🔐 RUTAS PROTEGIDAS
           ======================================== */}
       <Route element={<ProtectedRoute />}>
-        {/* Aquí irán tus rutas protegidas */}
-        <Route path="/dashboard" element={<div>Dashboard</div>} />
-        <Route path="/menu" element={<div>Menu</div>} />
+        {/* Dashboard con Layout */}
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<DashboardHome />} />
+          <Route path="/menu" element={<div className="p-6">Menu - En construcción</div>} />
+          <Route path="/tables" element={<div className="p-6">Tables - En construcción</div>} />
+          <Route path="/orders" element={<div className="p-6">Orders - En construcción</div>} />
+          <Route path="/kitchen" element={<div className="p-6">Kitchen - En construcción</div>} />
+          <Route path="/reservations" element={<div className="p-6">Reservations - En construcción</div>} />
+          <Route path="/staff" element={<div className="p-6">Staff - En construcción</div>} />
+          <Route path="/analytics" element={<div className="p-6">Analytics - En construcción</div>} />
+          <Route path="/notifications" element={<div className="p-6">Notifications - En construcción</div>} />
+          <Route path="/settings" element={<div className="p-6">Settings - En construcción</div>} />
+        </Route>
       </Route>
 
       {/* ========================================
