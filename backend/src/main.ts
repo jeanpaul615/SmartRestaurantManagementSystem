@@ -22,10 +22,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 async function bootstrap() {
   try {
-    const app = await NestFactory.create<NestExpressApplication>(
-      AppModule,
-      new ExpressAdapter(),
-    );
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter());
 
     // 🍪 Habilitar cookie-parser
     app.use(cookieParser());
@@ -33,8 +30,8 @@ async function bootstrap() {
     // ✅ Configuración de CORS
     app.enableCors({
       origin: [
-        'http://localhost:3000',        // Frontend local
-        'http://localhost:3001',        // Frontend alternativo
+        'http://localhost:3000', // Frontend local
+        'http://localhost:3001', // Frontend alternativo
         process.env.FRONTEND_URL || '', // Frontend en producción
       ].filter(Boolean), // Elimina valores vacíos
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -80,9 +77,8 @@ async function bootstrap() {
     };
 
     // Captura de señales comunes
-    process.on('SIGINT', () => shutdown('SIGINT'));  // Ctrl + C
+    process.on('SIGINT', () => shutdown('SIGINT')); // Ctrl + C
     process.on('SIGTERM', () => shutdown('SIGTERM')); // Docker / PM2 / sistemas
-
   } catch (error) {
     console.error('❌ Error al iniciar el servidor:', error);
     process.exit(1);

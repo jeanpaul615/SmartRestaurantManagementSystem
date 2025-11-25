@@ -13,11 +13,14 @@ export class Product {
   @Column({ length: 100 })
   name: string;
 
-  @ApiPropertyOptional({ description: 'Descripción del producto', example: 'Pizza clásica con tomate, mozzarella y albahaca' })
+  @ApiPropertyOptional({
+    description: 'Descripción del producto',
+    example: 'Pizza clásica con tomate, mozzarella y albahaca',
+  })
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @ApiProperty({ description: 'Precio del producto', example: 12.50, type: Number })
+  @ApiProperty({ description: 'Precio del producto', example: 12.5, type: Number })
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
@@ -25,15 +28,18 @@ export class Product {
   @Column({ default: 0 })
   stock: number;
 
-  @ApiPropertyOptional({ description: 'URL de la imagen del producto', example: 'https://example.com/pizza.jpg' })
+  @ApiPropertyOptional({
+    description: 'URL de la imagen del producto',
+    example: 'https://example.com/pizza.jpg',
+  })
   @Column({ type: 'varchar', length: 255, nullable: true })
   imageUrl: string;
 
   @ApiProperty({ description: 'Restaurante al que pertenece el producto', type: () => Restaurant })
-  @ManyToOne(() => Restaurant, restaurant => restaurant.products)
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.products)
   restaurant: Restaurant;
 
   @ApiProperty({ description: 'Items de órdenes asociados', type: () => [OrderItem] })
-  @OneToMany(() => OrderItem, orderItem => orderItem.product)
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
 }

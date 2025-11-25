@@ -24,52 +24,11 @@ TOTAL:         ████████░░ 55% - Proyecto sólido, necesita d
 ### 1.1 Configuración de Entorno ⚙️
 
 #### Tareas:
-- [ ] Crear archivo `.env.example` con todas las variables necesarias
-- [ ] Documentar variables requeridas en README principal
-- [ ] Configurar ESLint y Prettier de forma consistente
-- [ ] Agregar pre-commit hooks con Husky
+- [X] Crear archivo `.env.example` con todas las variables necesarias
+- [X] Documentar variables requeridas en README principal
+- [X] Configurar ESLint y Prettier de forma consistente
+- [X] Agregar pre-commit hooks con Husky
 
-#### Archivos a crear:
-
-**backend/.env.example:**
-```env
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASS=your_password
-DB_NAME=restaurant_db
-
-# JWT
-JWT_SECRET=your-super-secret-key-change-in-production
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_SECRET=your-refresh-secret
-JWT_REFRESH_EXPIRES_IN=7d
-
-# Server
-PORT=8000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-
-# Redis (opcional para esta fase)
-REDIS_HOST=localhost
-REDIS_PORT=6379
-```
-
-**frontend/.env.example:**
-```env
-VITE_API_BASE_URL=/api
-VITE_WS_URL=ws://localhost:8000
-```
-
-**.husky/pre-commit:**
-```bash
-#!/bin/sh
-npm run lint
-npm run type-check
-```
-
----
 
 ### 1.2 Dockerización 🐳
 

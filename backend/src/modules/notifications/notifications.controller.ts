@@ -1,20 +1,11 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete,
-  ParseIntPipe 
-} from '@nestjs/common';
-import { 
-  ApiTags, 
-  ApiOperation, 
-  ApiResponse, 
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
   ApiBearerAuth,
   ApiParam,
-  ApiBody
+  ApiBody,
 } from '@nestjs/swagger';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -31,9 +22,9 @@ export class NotificationsController {
 
   @Post()
   @Roles('admin', 'waiter', 'chef')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Crear una nueva notificación (Admin/Waiter/Chef)',
-    description: 'Crea una notificación para un usuario específico'
+    description: 'Crea una notificación para un usuario específico',
   })
   @ApiBody({
     type: CreateNotificationDto,
@@ -41,18 +32,22 @@ export class NotificationsController {
       'Notificación de orden lista': {
         value: {
           userId: 5,
-          message: 'Tu orden #123 está lista para ser recogida'
-        }
+          message: 'Tu orden #123 está lista para ser recogida',
+        },
       },
       'Notificación de reservación': {
         value: {
           userId: 10,
-          message: 'Tu reservación para 4 personas está confirmada para mañana a las 19:00'
-        }
-      }
-    }
+          message: 'Tu reservación para 4 personas está confirmada para mañana a las 19:00',
+        },
+      },
+    },
   })
-  @ApiResponse({ status: 201, description: 'Notificación creada exitosamente.', type: Notification })
+  @ApiResponse({
+    status: 201,
+    description: 'Notificación creada exitosamente.',
+    type: Notification,
+  })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 403, description: 'Acceso prohibido.' })
@@ -64,9 +59,9 @@ export class NotificationsController {
 
   @Get()
   @Roles('admin')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener todas las notificaciones (Solo Admin)',
-    description: 'Obtiene todas las notificaciones del sistema'
+    description: 'Obtiene todas las notificaciones del sistema',
   })
   @ApiResponse({ status: 200, description: 'Lista de notificaciones.', type: [Notification] })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
@@ -77,11 +72,15 @@ export class NotificationsController {
   }
 
   @Get('my-notifications')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener mis notificaciones',
-    description: 'Obtiene todas las notificaciones del usuario autenticado'
+    description: 'Obtiene todas las notificaciones del usuario autenticado',
   })
-  @ApiResponse({ status: 200, description: 'Lista de notificaciones del usuario.', type: [Notification] })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de notificaciones del usuario.',
+    type: [Notification],
+  })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async findMyNotifications(@CurrentUser() user: any): Promise<Notification[]> {
@@ -89,11 +88,15 @@ export class NotificationsController {
   }
 
   @Get('my-notifications/unread')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener mis notificaciones no leídas',
-    description: 'Obtiene todas las notificaciones no leídas del usuario autenticado'
+    description: 'Obtiene todas las notificaciones no leídas del usuario autenticado',
   })
-  @ApiResponse({ status: 200, description: 'Lista de notificaciones no leídas.', type: [Notification] })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de notificaciones no leídas.',
+    type: [Notification],
+  })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async findMyUnreadNotifications(@CurrentUser() user: any): Promise<Notification[]> {
@@ -101,9 +104,9 @@ export class NotificationsController {
   }
 
   @Patch('my-notifications/mark-all-read')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Marcar todas mis notificaciones como leídas',
-    description: 'Marca todas las notificaciones del usuario autenticado como leídas'
+    description: 'Marca todas las notificaciones del usuario autenticado como leídas',
   })
   @ApiResponse({ status: 200, description: 'Todas las notificaciones marcadas como leídas.' })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
@@ -115,12 +118,16 @@ export class NotificationsController {
 
   @Get('user/:userId')
   @Roles('admin')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener notificaciones de un usuario (Solo Admin)',
-    description: 'Obtiene todas las notificaciones de un usuario específico'
+    description: 'Obtiene todas las notificaciones de un usuario específico',
   })
   @ApiParam({ name: 'userId', description: 'ID del usuario', type: Number })
-  @ApiResponse({ status: 200, description: 'Lista de notificaciones del usuario.', type: [Notification] })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de notificaciones del usuario.',
+    type: [Notification],
+  })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 403, description: 'Acceso prohibido.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
@@ -129,9 +136,9 @@ export class NotificationsController {
   }
 
   @Get(':id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener una notificación por ID',
-    description: 'Obtiene los detalles de una notificación específica'
+    description: 'Obtiene los detalles de una notificación específica',
   })
   @ApiParam({ name: 'id', description: 'ID de la notificación', type: Number })
   @ApiResponse({ status: 200, description: 'Detalles de la notificación.', type: Notification })
@@ -143,38 +150,42 @@ export class NotificationsController {
   }
 
   @Patch(':id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Actualizar una notificación',
-    description: 'Actualiza el mensaje o estado de lectura de una notificación'
+    description: 'Actualiza el mensaje o estado de lectura de una notificación',
   })
   @ApiParam({ name: 'id', description: 'ID de la notificación', type: Number })
   @ApiBody({
     type: UpdateNotificationDto,
     examples: {
       'Marcar como leída': {
-        value: { read: true }
+        value: { read: true },
       },
       'Actualizar mensaje': {
-        value: { message: 'Tu orden #123 ha sido entregada' }
-      }
-    }
+        value: { message: 'Tu orden #123 ha sido entregada' },
+      },
+    },
   })
-  @ApiResponse({ status: 200, description: 'Notificación actualizada exitosamente.', type: Notification })
+  @ApiResponse({
+    status: 200,
+    description: 'Notificación actualizada exitosamente.',
+    type: Notification,
+  })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 404, description: 'Notificación no encontrada.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateNotificationDto: UpdateNotificationDto
+    @Body() updateNotificationDto: UpdateNotificationDto,
   ): Promise<Notification> {
     return this.notificationsService.update(id, updateNotificationDto);
   }
 
   @Patch(':id/mark-read')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Marcar notificación como leída',
-    description: 'Marca una notificación específica como leída'
+    description: 'Marca una notificación específica como leída',
   })
   @ApiParam({ name: 'id', description: 'ID de la notificación', type: Number })
   @ApiResponse({ status: 200, description: 'Notificación marcada como leída.', type: Notification })
@@ -186,9 +197,9 @@ export class NotificationsController {
   }
 
   @Delete(':id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Eliminar una notificación',
-    description: 'Elimina una notificación específica'
+    description: 'Elimina una notificación específica',
   })
   @ApiParam({ name: 'id', description: 'ID de la notificación', type: Number })
   @ApiResponse({ status: 200, description: 'Notificación eliminada exitosamente.' })
@@ -202,9 +213,9 @@ export class NotificationsController {
 
   @Delete('user/:userId')
   @Roles('admin')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Eliminar todas las notificaciones de un usuario (Solo Admin)',
-    description: 'Elimina todas las notificaciones de un usuario específico'
+    description: 'Elimina todas las notificaciones de un usuario específico',
   })
   @ApiParam({ name: 'userId', description: 'ID del usuario', type: Number })
   @ApiResponse({ status: 200, description: 'Notificaciones eliminadas exitosamente.' })

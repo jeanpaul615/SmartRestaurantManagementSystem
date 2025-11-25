@@ -13,15 +13,15 @@ export class OrderItem {
   @Column()
   quantity: number;
 
-  @ApiProperty({ description: 'Precio unitario del producto', example: 15.50 })
+  @ApiProperty({ description: 'Precio unitario del producto', example: 15.5 })
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
   @ApiProperty({ description: 'Orden a la que pertenece el item', type: () => Order })
-  @ManyToOne(() => Order, order => order.orderItems)
+  @ManyToOne(() => Order, (order) => order.orderItems)
   order: Order;
 
   @ApiProperty({ description: 'Producto asociado al item', type: () => Product })
-  @ManyToOne(() => Product, product => product.orderItems)
+  @ManyToOne(() => Product, (product) => product.orderItems)
   product: Product;
 }

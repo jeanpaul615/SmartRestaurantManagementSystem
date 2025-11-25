@@ -46,7 +46,7 @@ export class OrderItemsService {
   async findAll(): Promise<OrderItem[]> {
     return await this.orderItemRepository.find({
       relations: ['order', 'product'],
-      order: { id: 'DESC' }
+      order: { id: 'DESC' },
     });
   }
 

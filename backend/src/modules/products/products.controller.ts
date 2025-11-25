@@ -1,22 +1,22 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
   Query,
-  ParseIntPipe 
+  ParseIntPipe,
 } from '@nestjs/common';
-import { 
-  ApiTags, 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
   ApiBearerAuth,
   ApiParam,
   ApiQuery,
-  ApiBody
+  ApiBody,
 } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -34,34 +34,34 @@ export class ProductsController {
 
   @Post()
   @Roles('admin', 'waiter')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Crear un nuevo producto (Admin/Waiter)',
-    description: 'Crea un nuevo producto para un restaurante específico'
+    description: 'Crea un nuevo producto para un restaurante específico',
   })
   @ApiBody({
     type: CreateProductDto,
     examples: {
-      'Hamburguesa': {
+      Hamburguesa: {
         value: {
           name: 'Hamburguesa Clásica',
           description: 'Hamburguesa con queso cheddar, lechuga, tomate y salsa especial',
-          price: 12.50,
+          price: 12.5,
           stock: 50,
           imageUrl: 'https://example.com/hamburguesa.jpg',
-          restaurantId: 1
-        }
+          restaurantId: 1,
+        },
       },
-      'Pizza': {
+      Pizza: {
         value: {
           name: 'Pizza Margherita',
           description: 'Pizza con tomate, mozzarella y albahaca fresca',
-          price: 15.00,
+          price: 15.0,
           stock: 30,
           imageUrl: 'https://example.com/pizza.jpg',
-          restaurantId: 1
-        }
-      }
-    }
+          restaurantId: 1,
+        },
+      },
+    },
   })
   @ApiResponse({ status: 201, description: 'Producto creado exitosamente.', type: Product })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
@@ -75,15 +75,15 @@ export class ProductsController {
 
   @Get()
   @Public()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener todos los productos (Público)',
-    description: 'Obtiene todos los productos, opcionalmente filtrados por restaurante'
+    description: 'Obtiene todos los productos, opcionalmente filtrados por restaurante',
   })
-  @ApiQuery({ 
-    name: 'restaurantId', 
-    required: false, 
+  @ApiQuery({
+    name: 'restaurantId',
+    required: false,
     description: 'Filtrar por ID de restaurante',
-    type: Number 
+    type: Number,
   })
   @ApiResponse({ status: 200, description: 'Lista de productos.', type: [Product] })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
@@ -93,24 +93,24 @@ export class ProductsController {
 
   @Get('restaurant/:restaurantId')
   @Public()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener productos por restaurante (Público)',
-    description: 'Obtiene todos los productos de un restaurante específico'
+    description: 'Obtiene todos los productos de un restaurante específico',
   })
   @ApiParam({ name: 'restaurantId', description: 'ID del restaurante', type: Number })
   @ApiResponse({ status: 200, description: 'Lista de productos del restaurante.', type: [Product] })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async findByRestaurant(
-    @Param('restaurantId', ParseIntPipe) restaurantId: number
+    @Param('restaurantId', ParseIntPipe) restaurantId: number,
   ): Promise<Product[]> {
     return this.productsService.findByRestaurant(restaurantId);
   }
 
   @Get(':id')
   @Public()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener un producto por ID (Público)',
-    description: 'Obtiene los detalles completos de un producto específico'
+    description: 'Obtiene los detalles completos de un producto específico',
   })
   @ApiParam({ name: 'id', description: 'ID del producto', type: Number })
   @ApiResponse({ status: 200, description: 'Detalles del producto.', type: Product })
@@ -122,30 +122,30 @@ export class ProductsController {
 
   @Patch(':id')
   @Roles('admin', 'waiter')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Actualizar un producto (Admin/Waiter)',
-    description: 'Actualiza la información de un producto existente'
+    description: 'Actualiza la información de un producto existente',
   })
   @ApiParam({ name: 'id', description: 'ID del producto', type: Number })
   @ApiBody({
     type: UpdateProductDto,
     examples: {
       'Actualizar precio': {
-        value: { price: 14.50 }
+        value: { price: 14.5 },
       },
       'Actualizar stock': {
-        value: { stock: 100 }
+        value: { stock: 100 },
       },
       'Actualización completa': {
         value: {
           name: 'Hamburguesa Premium',
           description: 'Hamburguesa con queso gourmet, bacon y vegetales frescos',
-          price: 16.00,
+          price: 16.0,
           stock: 25,
-          imageUrl: 'https://example.com/hamburguesa-premium.jpg'
-        }
-      }
-    }
+          imageUrl: 'https://example.com/hamburguesa-premium.jpg',
+        },
+      },
+    },
   })
   @ApiResponse({ status: 200, description: 'Producto actualizado exitosamente.', type: Product })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
@@ -155,16 +155,16 @@ export class ProductsController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateProductDto: UpdateProductDto
+    @Body() updateProductDto: UpdateProductDto,
   ): Promise<Product> {
     return this.productsService.update(id, updateProductDto);
   }
 
   @Patch(':id/stock')
   @Roles('admin', 'waiter')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Actualizar stock de un producto (Admin/Waiter)',
-    description: 'Incrementa o decrementa el stock de un producto'
+    description: 'Incrementa o decrementa el stock de un producto',
   })
   @ApiParam({ name: 'id', description: 'ID del producto', type: Number })
   @ApiBody({
@@ -174,18 +174,18 @@ export class ProductsController {
         quantity: {
           type: 'number',
           description: 'Cantidad a sumar (positivo) o restar (negativo)',
-          example: 10
-        }
-      }
+          example: 10,
+        },
+      },
     },
     examples: {
       'Incrementar stock': {
-        value: { quantity: 50 }
+        value: { quantity: 50 },
       },
       'Decrementar stock': {
-        value: { quantity: -10 }
-      }
-    }
+        value: { quantity: -10 },
+      },
+    },
   })
   @ApiResponse({ status: 200, description: 'Stock actualizado exitosamente.', type: Product })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
@@ -194,16 +194,16 @@ export class ProductsController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async updateStock(
     @Param('id', ParseIntPipe) id: number,
-    @Body('quantity') quantity: number
+    @Body('quantity') quantity: number,
   ): Promise<Product> {
     return this.productsService.updateStock(id, quantity);
   }
 
   @Delete(':id')
   @Roles('admin')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Eliminar un producto (Solo Admin)',
-    description: 'Elimina un producto del sistema'
+    description: 'Elimina un producto del sistema',
   })
   @ApiParam({ name: 'id', description: 'ID del producto', type: Number })
   @ApiResponse({ status: 200, description: 'Producto eliminado exitosamente.' })
@@ -215,4 +215,4 @@ export class ProductsController {
     await this.productsService.remove(id);
     return { message: 'Producto eliminado exitosamente' };
   }
-}   
+}

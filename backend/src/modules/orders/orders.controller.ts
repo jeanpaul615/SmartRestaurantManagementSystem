@@ -1,22 +1,22 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
   Query,
-  ParseIntPipe 
+  ParseIntPipe,
 } from '@nestjs/common';
-import { 
-  ApiTags, 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
   ApiBearerAuth,
   ApiParam,
   ApiQuery,
-  ApiBody
+  ApiBody,
 } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -32,9 +32,9 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Crear una nueva orden',
-    description: 'Crea una nueva orden con sus items asociados'
+    description: 'Crea una nueva orden con sus items asociados',
   })
   @ApiBody({
     type: CreateOrderDto,
@@ -45,67 +45,64 @@ export class OrdersController {
           tableId: 5,
           status: 'pending',
           items: [
-            { productId: 1, quantity: 2, price: 15.50 },
-            { productId: 3, quantity: 1, price: 8.00 }
-          ]
-        }
+            { productId: 1, quantity: 2, price: 15.5 },
+            { productId: 3, quantity: 1, price: 8.0 },
+          ],
+        },
       },
       'Orden de restaurante': {
         value: {
           restaurantId: 2,
           tableId: 10,
           items: [
-            { productId: 5, quantity: 1, price: 25.00 },
-            { productId: 7, quantity: 2, price: 12.50 },
-            { productId: 9, quantity: 3, price: 5.00 }
-          ]
-        }
-      }
-    }
+            { productId: 5, quantity: 1, price: 25.0 },
+            { productId: 7, quantity: 2, price: 12.5 },
+            { productId: 9, quantity: 3, price: 5.0 },
+          ],
+        },
+      },
+    },
   })
   @ApiResponse({ status: 201, description: 'Orden creada exitosamente.', type: Order })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 404, description: 'Restaurante, mesa o producto no encontrado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async create(
-    @Body() createOrderDto: CreateOrderDto,
-    @CurrentUser() user: any
-  ): Promise<Order> {
+  async create(@Body() createOrderDto: CreateOrderDto, @CurrentUser() user: any): Promise<Order> {
     return this.ordersService.create(createOrderDto, user.id);
   }
 
   @Get()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener todas las órdenes',
-    description: 'Obtiene todas las órdenes, opcionalmente filtradas por usuario o restaurante'
+    description: 'Obtiene todas las órdenes, opcionalmente filtradas por usuario o restaurante',
   })
-  @ApiQuery({ 
-    name: 'userId', 
-    required: false, 
+  @ApiQuery({
+    name: 'userId',
+    required: false,
     description: 'Filtrar por ID de usuario',
-    type: Number 
+    type: Number,
   })
-  @ApiQuery({ 
-    name: 'restaurantId', 
-    required: false, 
+  @ApiQuery({
+    name: 'restaurantId',
+    required: false,
     description: 'Filtrar por ID de restaurante',
-    type: Number 
+    type: Number,
   })
   @ApiResponse({ status: 200, description: 'Lista de órdenes.', type: [Order] })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async findAll(
     @Query('userId') userId?: number,
-    @Query('restaurantId') restaurantId?: number
+    @Query('restaurantId') restaurantId?: number,
   ): Promise<Order[]> {
     return this.ordersService.findAll(userId, restaurantId);
   }
 
   @Get('my-orders')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener mis órdenes',
-    description: 'Obtiene todas las órdenes del usuario autenticado'
+    description: 'Obtiene todas las órdenes del usuario autenticado',
   })
   @ApiResponse({ status: 200, description: 'Lista de órdenes del usuario.', type: [Order] })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
@@ -116,9 +113,9 @@ export class OrdersController {
 
   @Get('restaurant/:restaurantId')
   @Roles('admin', 'waiter', 'chef')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener órdenes por restaurante (Admin/Waiter/Chef)',
-    description: 'Obtiene todas las órdenes de un restaurante específico'
+    description: 'Obtiene todas las órdenes de un restaurante específico',
   })
   @ApiParam({ name: 'restaurantId', description: 'ID del restaurante', type: Number })
   @ApiResponse({ status: 200, description: 'Lista de órdenes del restaurante.', type: [Order] })
@@ -126,15 +123,15 @@ export class OrdersController {
   @ApiResponse({ status: 403, description: 'Acceso prohibido.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async findByRestaurant(
-    @Param('restaurantId', ParseIntPipe) restaurantId: number
+    @Param('restaurantId', ParseIntPipe) restaurantId: number,
   ): Promise<Order[]> {
     return this.ordersService.findByRestaurant(restaurantId);
   }
 
   @Get(':id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener una orden por ID',
-    description: 'Obtiene los detalles completos de una orden específica'
+    description: 'Obtiene los detalles completos de una orden específica',
   })
   @ApiParam({ name: 'id', description: 'ID de la orden', type: Number })
   @ApiResponse({ status: 200, description: 'Detalles de la orden.', type: Order })
@@ -147,27 +144,27 @@ export class OrdersController {
 
   @Patch(':id')
   @Roles('admin', 'waiter', 'chef')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Actualizar estado de una orden (Admin/Waiter/Chef)',
-    description: 'Actualiza el estado de una orden existente'
+    description: 'Actualiza el estado de una orden existente',
   })
   @ApiParam({ name: 'id', description: 'ID de la orden', type: Number })
   @ApiBody({
     type: UpdateOrderDto,
     examples: {
       'Marcar como preparando': {
-        value: { status: 'preparing' }
+        value: { status: 'preparing' },
       },
       'Marcar como lista': {
-        value: { status: 'ready' }
+        value: { status: 'ready' },
       },
       'Marcar como entregada': {
-        value: { status: 'delivered' }
+        value: { status: 'delivered' },
       },
       'Cancelar orden': {
-        value: { status: 'cancelled' }
-      }
-    }
+        value: { status: 'cancelled' },
+      },
+    },
   })
   @ApiResponse({ status: 200, description: 'Orden actualizada exitosamente.', type: Order })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
@@ -177,16 +174,16 @@ export class OrdersController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateOrderDto: UpdateOrderDto
+    @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<Order> {
     return this.ordersService.update(id, updateOrderDto);
   }
 
   @Delete(':id')
   @Roles('admin')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Eliminar una orden (Solo Admin)',
-    description: 'Elimina una orden y todos sus items asociados'
+    description: 'Elimina una orden y todos sus items asociados',
   })
   @ApiParam({ name: 'id', description: 'ID de la orden', type: Number })
   @ApiResponse({ status: 200, description: 'Orden eliminada exitosamente.' })

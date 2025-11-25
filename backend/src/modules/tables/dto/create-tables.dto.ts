@@ -1,16 +1,16 @@
-import { IsString, MinLength, IsNumber } from "class-validator";
+import { IsString, MinLength, IsNumber } from 'class-validator';
 
 export class CreateTableDto {
-    @IsNumber()
-    number: number;
+  @IsNumber()
+  number: number;
 
-    @IsNumber()
-    capacity: number;
+  @IsNumber()
+  capacity: number;
 
-    @IsString()
-    @MinLength(2)
-    status: string;
+  @IsString()
+  @MinLength(2)
+  status: string;
 
-    @IsNumber()
-    restaurantId: number;
+  @IsNumber()
+  restaurantId: number;
 }

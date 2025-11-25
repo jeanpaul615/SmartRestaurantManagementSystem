@@ -19,7 +19,7 @@ export class UpdateReservationDto {
   @IsOptional()
   @IsString({ message: 'El estado debe ser un texto' })
   @IsIn(['pending', 'confirmed', 'cancelled', 'completed'], {
-    message: 'Estado inválido. Debe ser: pending, confirmed, cancelled, o completed'
+    message: 'Estado inválido. Debe ser: pending, confirmed, cancelled, o completed',
   })
   status?: string;
 }

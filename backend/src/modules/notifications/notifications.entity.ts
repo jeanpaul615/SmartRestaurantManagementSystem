@@ -9,7 +9,7 @@ export class Notification {
   id: number;
 
   @ApiProperty({ description: 'Usuario destinatario de la notificación', type: () => User })
-  @ManyToOne(() => User, user => user.notifications)
+  @ManyToOne(() => User, (user) => user.notifications)
   user: User;
 
   @ApiProperty({ description: 'Mensaje de la notificación', example: 'Tu orden está lista' })

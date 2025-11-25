@@ -6,7 +6,7 @@ export class UpdateOrderItemDto {
     description: 'Cantidad del producto',
     example: 3,
     minimum: 1,
-    type: Number
+    type: Number,
   })
   @IsOptional()
   @IsNumber({}, { message: 'La cantidad debe ser un número' })
@@ -15,8 +15,8 @@ export class UpdateOrderItemDto {
 
   @ApiPropertyOptional({
     description: 'Precio unitario del producto',
-    example: 18.00,
-    type: Number
+    example: 18.0,
+    type: Number,
   })
   @IsOptional()
   @IsNumber({}, { message: 'El precio debe ser un número' })

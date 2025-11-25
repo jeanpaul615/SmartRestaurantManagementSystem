@@ -5,7 +5,7 @@ export class CreateOrderItemDto {
   @ApiProperty({
     description: 'ID de la orden',
     example: 1,
-    type: Number
+    type: Number,
   })
   @IsNotEmpty({ message: 'El ID de la orden es requerido' })
   @IsNumber({}, { message: 'El ID de la orden debe ser un número' })
@@ -14,7 +14,7 @@ export class CreateOrderItemDto {
   @ApiProperty({
     description: 'ID del producto',
     example: 3,
-    type: Number
+    type: Number,
   })
   @IsNotEmpty({ message: 'El ID del producto es requerido' })
   @IsNumber({}, { message: 'El ID del producto debe ser un número' })
@@ -24,7 +24,7 @@ export class CreateOrderItemDto {
     description: 'Cantidad del producto',
     example: 2,
     minimum: 1,
-    type: Number
+    type: Number,
   })
   @IsNotEmpty({ message: 'La cantidad es requerida' })
   @IsNumber({}, { message: 'La cantidad debe ser un número' })
@@ -33,8 +33,8 @@ export class CreateOrderItemDto {
 
   @ApiProperty({
     description: 'Precio unitario del producto',
-    example: 15.50,
-    type: Number
+    example: 15.5,
+    type: Number,
   })
   @IsNotEmpty({ message: 'El precio es requerido' })
   @IsNumber({}, { message: 'El precio debe ser un número' })

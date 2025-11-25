@@ -3,7 +3,6 @@ import { User } from '../../users/users.entity';
 
 @Entity('refresh_tokens')
 export class RefreshToken {
-  
   // ID único del refresh token
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -13,7 +12,7 @@ export class RefreshToken {
   token: string;
 
   // Usuario al que pertenece
-  @ManyToOne(() => User, user => user.refreshTokens)
+  @ManyToOne(() => User, (user) => user.refreshTokens)
   user: User;
 
   // ID del usuario (FK)

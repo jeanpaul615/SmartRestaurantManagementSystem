@@ -20,7 +20,7 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/users')
       .expect(200)
-      .expect(res => {
+      .expect((res) => {
         expect(Array.isArray(res.body)).toBe(true); // Espera un array de usuarios
       });
   });

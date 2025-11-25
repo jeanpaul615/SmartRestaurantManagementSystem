@@ -8,131 +8,139 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectRepository(User)
-        private readonly usersRepository: Repository<User>,
-    ) {}
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+  ) {}
 
-    async create(createUserDto: CreateUserDto): Promise<User> {
-        // Verificar si el email ya existe
-        const existingUser = await this.FindByEmail(createUserDto.email);
-        if (existingUser) {
-            throw new ConflictException('El email ya está registrado');
-        }
-
-        // NO hashear aquí - debe venir hasheada desde AuthService
-        // La contraseña ya viene hasheada desde el AuthService
-        const { role, ...rest } = createUserDto;
-        const newUser = this.usersRepository.create({
-            ...rest,
-            password: createUserDto.password, // Ya viene hasheada
-            role: role as any 
-        });
-
-        return await this.usersRepository.save(newUser);
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    // Verificar si el email ya existe
+    const existingUser = await this.FindByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new ConflictException('El email ya está registrado');
     }
 
-    async findAll(role?: UserRole, status?: UserStatus): Promise<User[]> {
-        const queryBuilder = this.usersRepository
-            .createQueryBuilder('user')
-            .select(['user.id', 'user.username', 'user.email', 'user.role', 'user.status', 'user.createdAt', 'user.updatedAt']);
+    // NO hashear aquí - debe venir hasheada desde AuthService
+    // La contraseña ya viene hasheada desde el AuthService
+    const { role, ...rest } = createUserDto;
+    const newUser = this.usersRepository.create({
+      ...rest,
+      password: createUserDto.password, // Ya viene hasheada
+      role: role as any,
+    });
 
-        if (role) {
-            queryBuilder.andWhere('user.role = :role', { role });
-        }
+    return await this.usersRepository.save(newUser);
+  }
 
-        if (status) {
-            queryBuilder.andWhere('user.status = :status', { status });
-        }
+  async findAll(role?: UserRole, status?: UserStatus): Promise<User[]> {
+    const queryBuilder = this.usersRepository
+      .createQueryBuilder('user')
+      .select([
+        'user.id',
+        'user.username',
+        'user.email',
+        'user.role',
+        'user.status',
+        'user.createdAt',
+        'user.updatedAt',
+      ]);
 
-        queryBuilder.orderBy('user.createdAt', 'DESC');
-
-        return await queryBuilder.getMany();
+    if (role) {
+      queryBuilder.andWhere('user.role = :role', { role });
     }
 
-    async findOne(id: number): Promise<User> {
-        const user = await this.usersRepository.findOne({
-            where: { id },
-            select: ['id', 'username', 'email', 'role', 'status', 'createdAt', 'updatedAt'],
-        });
-
-        if (!user) {
-            throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
-        }
-
-        return user;
+    if (status) {
+      queryBuilder.andWhere('user.status = :status', { status });
     }
 
-    async findByEmail(email: string): Promise<User | null> {
-        return this.usersRepository.findOne({
-            where: { email },
-        });
+    queryBuilder.orderBy('user.createdAt', 'DESC');
+
+    return await queryBuilder.getMany();
+  }
+
+  async findOne(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      select: ['id', 'username', 'email', 'role', 'status', 'createdAt', 'updatedAt'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
 
-    async findByRole(role: UserRole): Promise<User[]> {
-        return this.findAll(role);
+    return user;
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: { email },
+    });
+  }
+
+  async findByRole(role: UserRole): Promise<User[]> {
+    return this.findAll(role);
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-        const user = await this.usersRepository.findOne({ where: { id } });
-
-        if (!user) {
-            throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
-        }
-
-        // Si se actualiza el email, verificar que no exista
-        if (updateUserDto.email && updateUserDto.email !== user.email) {
-            const existingUser = await this.FindByEmail(updateUserDto.email);
-            if (existingUser) {
-                throw new ConflictException('El email ya está registrado');
-            }
-        }
-
-        // Si se actualiza la contraseña, hashearla
-        if (updateUserDto.password) {
-            updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
-        }
-
-        Object.assign(user, updateUserDto);
-
-        return await this.usersRepository.save(user);
+    // Si se actualiza el email, verificar que no exista
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const existingUser = await this.FindByEmail(updateUserDto.email);
+      if (existingUser) {
+        throw new ConflictException('El email ya está registrado');
+      }
     }
 
-    async remove(id: number): Promise<void> {
-        const user = await this.findOne(id);
-        await this.usersRepository.remove(user);
+    // Si se actualiza la contraseña, hashearla
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    async deactivate(id: number): Promise<User> {
-        return this.update(id, { status: UserStatus.INACTIVE });
-    }
+    Object.assign(user, updateUserDto);
 
-    async activate(id: number): Promise<User> {
-        return this.update(id, { status: UserStatus.ACTIVE });
-    }
+    return await this.usersRepository.save(user);
+  }
 
-    async changeRole(id: number, role: UserRole): Promise<User> {
-        return this.update(id, { role });
-    }
+  async remove(id: number): Promise<void> {
+    const user = await this.findOne(id);
+    await this.usersRepository.remove(user);
+  }
 
-    // Métodos legacy para compatibilidad
-    async CreateUser(createUserDto: CreateUserDto): Promise<User> {
-        return this.create(createUserDto);
-    }
+  async deactivate(id: number): Promise<User> {
+    return this.update(id, { status: UserStatus.INACTIVE });
+  }
 
-    async FindByEmail(email: string): Promise<User | null> {
-        return this.findByEmail(email);
-    }
+  async activate(id: number): Promise<User> {
+    return this.update(id, { status: UserStatus.ACTIVE });
+  }
 
-    async FindAll(): Promise<User[]> {
-        return this.findAll();
-    }
+  async changeRole(id: number, role: UserRole): Promise<User> {
+    return this.update(id, { role });
+  }
 
-    async FindById(id: number): Promise<User | null> {
-        try {
-            return await this.findOne(id);
-        } catch {
-            return null;
-        }
+  // Métodos legacy para compatibilidad
+  async CreateUser(createUserDto: CreateUserDto): Promise<User> {
+    return this.create(createUserDto);
+  }
+
+  async FindByEmail(email: string): Promise<User | null> {
+    return this.findByEmail(email);
+  }
+
+  async FindAll(): Promise<User[]> {
+    return this.findAll();
+  }
+
+  async FindById(id: number): Promise<User | null> {
+    try {
+      return await this.findOne(id);
+    } catch {
+      return null;
     }
+  }
 }

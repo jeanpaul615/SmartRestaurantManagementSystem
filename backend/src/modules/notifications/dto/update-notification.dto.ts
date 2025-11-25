@@ -5,7 +5,7 @@ export class UpdateNotificationDto {
   @ApiPropertyOptional({
     description: 'Mensaje de la notificación',
     example: 'Tu orden #123 ha sido entregada',
-    type: String
+    type: String,
   })
   @IsOptional()
   @IsString({ message: 'El mensaje debe ser un texto' })
@@ -14,7 +14,7 @@ export class UpdateNotificationDto {
   @ApiPropertyOptional({
     description: 'Estado de lectura de la notificación',
     example: true,
-    type: Boolean
+    type: Boolean,
   })
   @IsOptional()
   @IsBoolean({ message: 'El estado de lectura debe ser un booleano' })

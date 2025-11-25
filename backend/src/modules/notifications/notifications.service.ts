@@ -66,12 +66,12 @@ export class NotificationsService {
 
   async findUnreadByUser(userId: number): Promise<Notification[]> {
     return await this.notificationRepository.find({
-      where: { 
+      where: {
         user: { id: userId },
-        read: false 
+        read: false,
       },
       relations: ['user'],
-      order: { created_at: 'DESC' }
+      order: { created_at: 'DESC' },
     });
   }
 
@@ -94,10 +94,7 @@ export class NotificationsService {
   }
 
   async markAllAsReadByUser(userId: number): Promise<void> {
-    await this.notificationRepository.update(
-      { user: { id: userId }, read: false },
-      { read: true }
-    );
+    await this.notificationRepository.update({ user: { id: userId }, read: false }, { read: true });
   }
 
   async remove(id: number): Promise<void> {

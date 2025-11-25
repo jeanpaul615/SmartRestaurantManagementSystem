@@ -20,7 +20,7 @@ export class ProductsService {
 
     // Verificar que el restaurante existe
     const restaurant = await this.restaurantRepository.findOne({
-      where: { id: restaurantId }
+      where: { id: restaurantId },
     });
 
     if (!restaurant) {
@@ -82,7 +82,7 @@ export class ProductsService {
   async updateStock(id: number, quantity: number): Promise<Product> {
     const product = await this.findOne(id);
     product.stock += quantity;
-    
+
     if (product.stock < 0) {
       product.stock = 0;
     }

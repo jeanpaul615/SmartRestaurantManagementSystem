@@ -15,23 +15,26 @@ export class Order {
   @Column({ length: 20, default: 'pending' })
   status: string;
 
-  @ApiProperty({ description: 'Fecha de creación de la orden', example: '2025-10-28T10:30:00.000Z' })
+  @ApiProperty({
+    description: 'Fecha de creación de la orden',
+    example: '2025-10-28T10:30:00.000Z',
+  })
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
   @ApiProperty({ description: 'Restaurante asociado a la orden', type: () => Restaurant })
-  @ManyToOne(() => Restaurant, restaurant => restaurant.orders)
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.orders)
   restaurant: Restaurant;
 
   @ApiProperty({ description: 'Usuario que realizó la orden', type: () => User })
-  @ManyToOne(() => User, user => user.orders)
+  @ManyToOne(() => User, (user) => user.orders)
   user: User;
 
   @ApiProperty({ description: 'Mesa asignada a la orden', type: () => Tables })
-  @ManyToOne(() => Tables, table => table.orders)
+  @ManyToOne(() => Tables, (table) => table.orders)
   tables: Tables;
 
   @ApiProperty({ description: 'Items de la orden', type: () => [OrderItem] })
-  @OneToMany(() => OrderItem, orderItem => orderItem.order)
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   orderItems: OrderItem[];
 }

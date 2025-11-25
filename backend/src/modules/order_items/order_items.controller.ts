@@ -1,20 +1,11 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete,
-  ParseIntPipe 
-} from '@nestjs/common';
-import { 
-  ApiTags, 
-  ApiOperation, 
-  ApiResponse, 
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
   ApiBearerAuth,
   ApiParam,
-  ApiBody
+  ApiBody,
 } from '@nestjs/swagger';
 import { OrderItemsService } from './order_items.service';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
@@ -30,9 +21,9 @@ export class OrderItemsController {
 
   @Post()
   @Roles('admin', 'waiter')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Agregar un item a una orden (Admin/Waiter)',
-    description: 'Agrega un nuevo item a una orden existente'
+    description: 'Agrega un nuevo item a una orden existente',
   })
   @ApiBody({
     type: CreateOrderItemDto,
@@ -42,10 +33,10 @@ export class OrderItemsController {
           orderId: 1,
           productId: 3,
           quantity: 2,
-          price: 15.50
-        }
-      }
-    }
+          price: 15.5,
+        },
+      },
+    },
   })
   @ApiResponse({ status: 201, description: 'Item agregado exitosamente.', type: OrderItem })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
@@ -59,9 +50,9 @@ export class OrderItemsController {
 
   @Get()
   @Roles('admin')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener todos los items de órdenes (Solo Admin)',
-    description: 'Obtiene todos los items de todas las órdenes'
+    description: 'Obtiene todos los items de todas las órdenes',
   })
   @ApiResponse({ status: 200, description: 'Lista de items de órdenes.', type: [OrderItem] })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
@@ -72,9 +63,9 @@ export class OrderItemsController {
   }
 
   @Get('order/:orderId')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener items de una orden específica',
-    description: 'Obtiene todos los items asociados a una orden'
+    description: 'Obtiene todos los items asociados a una orden',
   })
   @ApiParam({ name: 'orderId', description: 'ID de la orden', type: Number })
   @ApiResponse({ status: 200, description: 'Lista de items de la orden.', type: [OrderItem] })
@@ -85,9 +76,9 @@ export class OrderItemsController {
   }
 
   @Get(':id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Obtener un item de orden por ID',
-    description: 'Obtiene los detalles de un item específico'
+    description: 'Obtiene los detalles de un item específico',
   })
   @ApiParam({ name: 'id', description: 'ID del item', type: Number })
   @ApiResponse({ status: 200, description: 'Detalles del item.', type: OrderItem })
@@ -100,24 +91,24 @@ export class OrderItemsController {
 
   @Patch(':id')
   @Roles('admin', 'waiter')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Actualizar un item de orden (Admin/Waiter)',
-    description: 'Actualiza la cantidad o precio de un item de orden'
+    description: 'Actualiza la cantidad o precio de un item de orden',
   })
   @ApiParam({ name: 'id', description: 'ID del item', type: Number })
   @ApiBody({
     type: UpdateOrderItemDto,
     examples: {
       'Actualizar cantidad': {
-        value: { quantity: 3 }
+        value: { quantity: 3 },
       },
       'Actualizar precio': {
-        value: { price: 18.00 }
+        value: { price: 18.0 },
       },
       'Actualizar cantidad y precio': {
-        value: { quantity: 2, price: 16.50 }
-      }
-    }
+        value: { quantity: 2, price: 16.5 },
+      },
+    },
   })
   @ApiResponse({ status: 200, description: 'Item actualizado exitosamente.', type: OrderItem })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
@@ -127,16 +118,16 @@ export class OrderItemsController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateOrderItemDto: UpdateOrderItemDto
+    @Body() updateOrderItemDto: UpdateOrderItemDto,
   ): Promise<OrderItem> {
     return this.orderItemsService.update(id, updateOrderItemDto);
   }
 
   @Delete(':id')
   @Roles('admin', 'waiter')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Eliminar un item de orden (Admin/Waiter)',
-    description: 'Elimina un item de una orden'
+    description: 'Elimina un item de una orden',
   })
   @ApiParam({ name: 'id', description: 'ID del item', type: Number })
   @ApiResponse({ status: 200, description: 'Item eliminado exitosamente.' })

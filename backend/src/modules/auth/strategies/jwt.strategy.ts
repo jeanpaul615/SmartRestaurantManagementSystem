@@ -13,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         (request: Request) => {
           // Primero intentar desde cookies
           let token = request?.cookies?.access_token;
-          
+
           // Si no hay en cookies, intentar desde header (backwards compatibility)
           if (!token) {
             const authHeader = request?.headers?.authorization;
@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
               token = authHeader.substring(7);
             }
           }
-          
+
           return token;
         },
       ]),
@@ -34,10 +34,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     try {
       // payload contiene: { sub: userId, email, role, iat, exp }
       const userId = typeof payload.sub === 'number' ? payload.sub : Number(payload.sub);
-      
+
       // Buscar usuario en la base de datos
       const user = await this.usersService.FindById(userId);
-      
+
       if (!user) {
         throw new UnauthorizedException('Usuario no encontrado o inactivo');
       }
@@ -59,7 +59,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      
+
       // Si es otro tipo de error (BD, etc), loguear y rechazar
       console.error('Error validando token JWT:', error);
       throw new UnauthorizedException('Error de autenticación');

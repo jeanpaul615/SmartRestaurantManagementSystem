@@ -5,12 +5,12 @@ export class UpdateOrderDto {
   @ApiPropertyOptional({
     description: 'Estado de la orden',
     example: 'preparing',
-    enum: ['pending', 'preparing', 'ready', 'delivered', 'cancelled']
+    enum: ['pending', 'preparing', 'ready', 'delivered', 'cancelled'],
   })
   @IsOptional()
   @IsString({ message: 'El estado debe ser un texto' })
   @IsIn(['pending', 'preparing', 'ready', 'delivered', 'cancelled'], {
-    message: 'Estado inválido. Debe ser: pending, preparing, ready, delivered, o cancelled'
+    message: 'Estado inválido. Debe ser: pending, preparing, ready, delivered, o cancelled',
   })
   status?: string;
 }

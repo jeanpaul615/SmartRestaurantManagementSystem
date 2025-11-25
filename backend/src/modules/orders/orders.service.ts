@@ -28,16 +28,16 @@ export class OrdersService {
     const { restaurantId, tableId, items, status } = createOrderDto;
 
     // Verificar que el restaurante existe
-    const restaurant = await this.restaurantRepository.findOne({ 
-      where: { id: restaurantId } 
+    const restaurant = await this.restaurantRepository.findOne({
+      where: { id: restaurantId },
     });
     if (!restaurant) {
       throw new NotFoundException(`Restaurante con ID ${restaurantId} no encontrado`);
     }
 
     // Verificar que la mesa existe
-    const table = await this.tablesRepository.findOne({ 
-      where: { id: tableId } 
+    const table = await this.tablesRepository.findOne({
+      where: { id: tableId },
     });
     if (!table) {
       throw new NotFoundException(`Mesa con ID ${tableId} no encontrada`);
@@ -45,8 +45,8 @@ export class OrdersService {
 
     // Verificar que todos los productos existen
     for (const item of items) {
-      const product = await this.productRepository.findOne({ 
-        where: { id: item.productId } 
+      const product = await this.productRepository.findOne({
+        where: { id: item.productId },
       });
       if (!product) {
         throw new NotFoundException(`Producto con ID ${item.productId} no encontrado`);
@@ -64,7 +64,7 @@ export class OrdersService {
     const savedOrder = await this.orderRepository.save(order);
 
     // Crear los items de la orden
-    const orderItems = items.map(item => {
+    const orderItems = items.map((item) => {
       return this.orderItemRepository.create({
         order: savedOrder,
         product: { id: item.productId } as any,
@@ -127,10 +127,10 @@ export class OrdersService {
 
   async remove(id: number): Promise<void> {
     const order = await this.findOne(id);
-    
+
     // Eliminar los items de la orden primero
     await this.orderItemRepository.delete({ order: { id } });
-    
+
     // Eliminar la orden
     await this.orderRepository.remove(order);
   }

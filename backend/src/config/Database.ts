@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Importa las entidades aquí
 import { User } from '../modules/users/users.entity';
@@ -16,14 +16,14 @@ import { Restaurant } from '../modules/restaurant/restaurant.entity';
 // Configuración de la base de datos utilizando TypeORM
 
 export const DatabaseConfig = TypeOrmModule.forRoot({
-    type: 'postgres',
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    username: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASS || '',
-    database: process.env.DB_NAME || 'test',
-    autoLoadEntities: true,
-    synchronize: true,
-    logging: false,
-    entities: [User, Reservation, Tables, Notification, Order, OrderItem, Product, Restaurant], // Todas las entidades importadas
+  type: 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  username: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASS || '',
+  database: process.env.DB_NAME || 'test',
+  autoLoadEntities: true,
+  synchronize: true,
+  logging: false,
+  entities: [User, Reservation, Tables, Notification, Order, OrderItem, Product, Restaurant], // Todas las entidades importadas
 });

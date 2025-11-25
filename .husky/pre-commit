@@ -1,0 +1,57 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🎣 Husky: Ejecutando verificaciones antes del commit..."
+echo ""
+
+# ========================================
+# 🔧 BACKEND
+# ========================================
+echo "📦 Verificando Backend..."
+cd backend || exit 1
+
+# Lint
+echo "  → Ejecutando ESLint..."
+npm run lint || {
+  echo "❌ Error: Backend lint falló"
+  exit 1
+}
+
+echo "  → Formateando código..."
+npm run format || {
+  echo "❌ Error: Backend format falló"
+  exit 1
+}
+
+cd ..
+
+# ========================================
+# 🎨 FRONTEND
+# ========================================
+echo ""
+echo "🖼️  Verificando Frontend..."
+cd frontend || exit 1
+
+# Lint
+echo "  → Ejecutando ESLint..."
+npm run lint || {
+  echo "❌ Error: Frontend lint falló"
+  exit 1
+}
+
+# Format (si existe el script)
+if grep -q '"format"' package.json 2>/dev/null; then
+  echo "  → Formateando código..."
+  npm run format || {
+    echo "❌ Error: Frontend format falló"
+    exit 1
+  }
+fi
+
+cd ..
+
+# ========================================
+# ✅ TODO LISTO
+# ========================================
+echo ""
+echo "✅ Todas las verificaciones pasaron! Haciendo commit..."
