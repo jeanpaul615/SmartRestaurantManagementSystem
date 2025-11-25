@@ -23,7 +23,9 @@ export const DatabaseConfig = TypeOrmModule.forRoot({
   password: process.env.DB_PASS || '',
   database: process.env.DB_NAME || 'test',
   autoLoadEntities: true,
-  synchronize: true,
+  synchronize: process.env.NODE_ENV !== 'production',
+  migrations: ['dist/migrations/*.js'],
+  migrationsRun: false,
   logging: false,
   entities: [User, Reservation, Tables, Notification, Order, OrderItem, Product, Restaurant], // Todas las entidades importadas
 });

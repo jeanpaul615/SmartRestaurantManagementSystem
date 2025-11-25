@@ -33,111 +33,17 @@ TOTAL:         ████████░░ 55% - Proyecto sólido, necesita d
 ### 1.2 Dockerización 🐳
 
 #### Tareas:
-- [ ] Crear Dockerfile para backend
-- [ ] Crear Dockerfile para frontend
-- [ ] Crear docker-compose.yml completo
-- [ ] Agregar scripts npm para Docker
-- [ ] Documentar setup con Docker en README
+- [X] Crear Dockerfile para backend
+- [X] Crear Dockerfile para frontend
+- [X] Crear docker-compose.yml completo
+- [X] Agregar scripts npm para Docker
+- [X] Documentar setup con Docker en README
 
-#### Archivos a crear:
-
-**backend/Dockerfile:**
-```dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY --from=builder /app/dist ./dist
-EXPOSE 8000
-CMD ["node", "dist/main.js"]
-```
-
-**frontend/Dockerfile:**
-```dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-**docker-compose.yml:**
-```yaml
-version: '3.8'
-
-services:
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: restaurant_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    environment:
-      - NODE_ENV=development
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-
-volumes:
-  postgres_data:
-```
-
-**Scripts a agregar en package.json:**
-```json
-{
-  "scripts": {
-    "docker:build": "docker-compose build",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f"
-  }
-}
-```
-
----
 
 ### 1.3 Migraciones de Base de Datos 💾
 
 #### Tareas:
-- [ ] Cambiar `synchronize: false` en configuración de producción
+- [X] Cambiar `synchronize: false` en configuración de producción
 - [ ] Configurar TypeORM CLI para migraciones
 - [ ] Crear migración inicial con esquema actual
 - [ ] Agregar scripts para generar/ejecutar migraciones
