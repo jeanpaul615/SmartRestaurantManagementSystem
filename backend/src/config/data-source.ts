@@ -28,7 +28,7 @@ const dbConfig = {
   port: parseInt(process.env.DB_PORT || '5432', 10),
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASS || 'postgres',
-  database: process.env.DB_NAME || 'test',
+  database: process.env.DB_NAME || 'SystemRestaurant',
 };
 
 // Log de configuración en desarrollo (para debugging)
@@ -50,7 +50,6 @@ export const AppDataSource = new DataSource({
   password: dbConfig.password,
   database: dbConfig.database,
 
-  // Entidades
   entities: [
     User,
     Reservation,
@@ -63,17 +62,17 @@ export const AppDataSource = new DataSource({
     RefreshToken,
   ],
 
-  // Migraciones: usa .ts en desarrollo, .js en producción
+  // Migraciones: TypeScript en desarrollo, JavaScript en producción
   migrations: isDevelopment ? ['src/migrations/*.ts'] : ['dist/migrations/*.js'],
 
   migrationsTableName: 'migrations_history',
 
-  // NUNCA sincronizar en producción, opcional en desarrollo
+  // ⚡ SIEMPRE false para migraciones
   synchronize: false,
 
-  // Logging: detallado en desarrollo, solo errores en producción
-  logging: isDevelopment ? ['query', 'error', 'schema'] : ['error'],
+  // Logging
+  logging: isDevelopment ? ['query', 'error', 'schema', 'migration'] : ['error'],
 
-  // SSL solo en producción (si lo requiere tu proveedor)
+  // SSL solo en producción
   ssl: isDevelopment ? false : { rejectUnauthorized: false },
 });

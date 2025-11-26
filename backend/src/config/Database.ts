@@ -6,7 +6,7 @@ const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.en
 
 dotenv.config({ path: path.resolve(__dirname, '../../', envFile) });
 
-import { TypeOrmModule } from '@nestjs/typeorm'; // ⚡ Cambiado: TypeOrmModule en vez de DataSource
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Importa las entidades
 import { User } from '../modules/users/users.entity';
@@ -28,7 +28,7 @@ const dbConfig = {
   port: parseInt(process.env.DB_PORT || '5432', 10),
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASS || 'postgres',
-  database: process.env.DB_NAME || 'test',
+  database: process.env.DB_NAME || 'SystemRestaurant',
 };
 
 // Log de configuración en desarrollo (para debugging)
@@ -40,10 +40,9 @@ if (isDevelopment) {
   console.log(`   User: ${dbConfig.username}`);
   console.log(`   Database: ${dbConfig.database}`);
   console.log(`   Password: ${dbConfig.password ? '***' : '(vacío)'}`);
-  console.log(`   Synchronize: ${isDevelopment}`);
+  console.log(`   ⚠️  MIGRACIONES ACTIVAS - synchronize: false`);
 }
 
-// ⚡ Configuración para NestJS (NO para CLI)
 export const DatabaseConfig = TypeOrmModule.forRoot({
   type: 'postgres',
   host: dbConfig.host,
@@ -65,21 +64,15 @@ export const DatabaseConfig = TypeOrmModule.forRoot({
     RefreshToken,
   ],
 
-  // Auto-cargar entidades de módulos
   autoLoadEntities: true,
 
-  // Sincronización automática (cómodo en desarrollo)
-  synchronize: isDevelopment, // ⚡ true en desarrollo, false en producción
+  synchronize: false,
 
-  // Migraciones compiladas
   migrations: ['dist/migrations/*.js'],
 
-  // Ejecutar migraciones al iniciar (solo en producción)
-  migrationsRun: !isDevelopment, // ⚡ false en desarrollo, true en producción
+  migrationsRun: false,
 
-  // Logging
-  logging: isDevelopment ? ['query', 'error', 'schema'] : ['error'],
+  logging: isDevelopment ? ['query', 'error', 'schema', 'migration'] : ['error'],
 
-  // SSL solo en producción
   ssl: isDevelopment ? false : { rejectUnauthorized: false },
 });

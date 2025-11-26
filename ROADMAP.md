@@ -45,35 +45,11 @@ TOTAL:         ████████░░ 55% - Proyecto sólido, necesita d
 #### Tareas:
 - [X] Cambiar `synchronize: false` en configuración de producción
 - [X] Configurar TypeORM CLI para migraciones
-- [ ] Crear migración inicial con esquema actual
-- [ ] Agregar scripts para generar/ejecutar migraciones
-- [ ] Documentar proceso de migraciones
+- [X] Crear migración inicial con esquema actual
+- [X] Agregar scripts para generar/ejecutar migraciones
+- [X] Documentar proceso de migraciones
 
-#### Scripts en backend/package.json:
-```json
-{
-  "scripts": {
-    "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "npm run typeorm -- migration:generate -d src/config/Database.ts",
-    "migration:create": "npm run typeorm -- migration:create",
-    "migration:run": "npm run typeorm -- migration:run -d src/config/Database.ts",
-    "migration:revert": "npm run typeorm -- migration:revert -d src/config/Database.ts"
-  }
-}
-```
 
-#### Configuración:
-```typescript
-// backend/src/config/Database.ts
-export const DatabaseConfig = TypeOrmModule.forRoot({
-  // ... otras configuraciones
-  synchronize: process.env.NODE_ENV !== 'production',
-  migrations: ['dist/migrations/*.js'],
-  migrationsRun: true,
-});
-```
-
----
 
 ## 🎨 FASE 2: COMPLETAR FRONTEND - PÁGINAS CORE
 
