@@ -6,7 +6,7 @@ const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.en
 
 dotenv.config({ path: path.resolve(__dirname, '../../', envFile) });
 
-import { TypeOrmModule } from '@nestjs/typeorm'; // ⚡ Cambiado: TypeOrmModule en vez de DataSource
+import { DataSource } from 'typeorm';
 
 // Importa las entidades
 import { User } from '../modules/users/users.entity';
@@ -33,18 +33,16 @@ const dbConfig = {
 
 // Log de configuración en desarrollo (para debugging)
 if (isDevelopment) {
-  console.log('🚀 NestJS - Configuración de Base de Datos:');
-  console.log(`   Entorno: ${process.env.NODE_ENV || 'development'}`);
+  console.log('🔧 Configuración de Base de Datos:');
   console.log(`   Host: ${dbConfig.host}`);
   console.log(`   Port: ${dbConfig.port}`);
   console.log(`   User: ${dbConfig.username}`);
   console.log(`   Database: ${dbConfig.database}`);
   console.log(`   Password: ${dbConfig.password ? '***' : '(vacío)'}`);
-  console.log(`   Synchronize: ${isDevelopment}`);
 }
 
-// ⚡ Configuración para NestJS (NO para CLI)
-export const DatabaseConfig = TypeOrmModule.forRoot({
+// DataSource para las migraciones de TypeORM
+export const AppDataSource = new DataSource({
   type: 'postgres',
   host: dbConfig.host,
   port: dbConfig.port,
@@ -65,21 +63,17 @@ export const DatabaseConfig = TypeOrmModule.forRoot({
     RefreshToken,
   ],
 
-  // Auto-cargar entidades de módulos
-  autoLoadEntities: true,
+  // Migraciones: usa .ts en desarrollo, .js en producción
+  migrations: isDevelopment ? ['src/migrations/*.ts'] : ['dist/migrations/*.js'],
 
-  // Sincronización automática (cómodo en desarrollo)
-  synchronize: isDevelopment, // ⚡ true en desarrollo, false en producción
+  migrationsTableName: 'migrations_history',
 
-  // Migraciones compiladas
-  migrations: ['dist/migrations/*.js'],
+  // NUNCA sincronizar en producción, opcional en desarrollo
+  synchronize: false,
 
-  // Ejecutar migraciones al iniciar (solo en producción)
-  migrationsRun: !isDevelopment, // ⚡ false en desarrollo, true en producción
-
-  // Logging
+  // Logging: detallado en desarrollo, solo errores en producción
   logging: isDevelopment ? ['query', 'error', 'schema'] : ['error'],
 
-  // SSL solo en producción
+  // SSL solo en producción (si lo requiere tu proveedor)
   ssl: isDevelopment ? false : { rejectUnauthorized: false },
 });

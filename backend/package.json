@@ -20,10 +20,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "dev": "nodemon --watch src --exec ts-node -r tsconfig-paths/register src/main.ts",
     "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "npm run typeorm -- migration:generate -d src/config/Database.ts",
+    "migration:generate": "npm run typeorm -- migration:generate -d src/config/data-source.ts",
     "migration:create": "npm run typeorm -- migration:create",
-    "migration:run": "npm run typeorm -- migration:run -d src/config/Database.ts",
-    "migration:revert": "npm run typeorm -- migration:revert -d src/config/Database.ts"
+    "migration:run": "npm run typeorm -- migration:run -d src/config/data-source.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d src/config/data-source.ts"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.0.1",

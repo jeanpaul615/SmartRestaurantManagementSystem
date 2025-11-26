@@ -44,7 +44,7 @@ TOTAL:         ████████░░ 55% - Proyecto sólido, necesita d
 
 #### Tareas:
 - [X] Cambiar `synchronize: false` en configuración de producción
-- [ ] Configurar TypeORM CLI para migraciones
+- [X] Configurar TypeORM CLI para migraciones
 - [ ] Crear migración inicial con esquema actual
 - [ ] Agregar scripts para generar/ejecutar migraciones
 - [ ] Documentar proceso de migraciones
