@@ -67,10 +67,7 @@ export const DashboardHome: React.FC = () => {
           <RevenueChart />
         </ChartCard>
 
-        <ChartCard
-          title="Pedidos por Hora"
-          subtitle="Distribución del día de hoy"
-        >
+        <ChartCard title="Pedidos por Hora" subtitle="Distribución del día de hoy">
           <OrdersChart />
         </ChartCard>
       </div>

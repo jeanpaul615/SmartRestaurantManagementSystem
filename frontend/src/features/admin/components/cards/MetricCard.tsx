@@ -27,15 +27,18 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
           <h3 className="text-2xl font-bold text-gray-900 mb-2">{value}</h3>
-          
+
           <div className="flex items-center gap-1">
             {isPositive ? (
               <TrendingUp className="w-4 h-4 text-green-500" />
             ) : (
               <TrendingDown className="w-4 h-4 text-red-500" />
             )}
-            <span className={`text-sm font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositive ? '+' : ''}{change}%
+            <span
+              className={`text-sm font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}
+            >
+              {isPositive ? '+' : ''}
+              {change}%
             </span>
             <span className="text-sm text-gray-500 ml-1">vs ayer</span>
           </div>

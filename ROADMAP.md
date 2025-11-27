@@ -60,8 +60,8 @@ TOTAL:         ████████░░ 55% - Proyecto sólido, necesita d
 
 #### Backend - Endpoints adicionales:
 - [X] `GET /products/category/:category` - Filtrar por categoría
-- [ ] `GET /products/search?q=pizza` - Búsqueda de productos
-- [ ] `PATCH /products/:id/toggle-availability` - Cambiar disponibilidad
+- [X] `GET /products/search?q=pizza` - Búsqueda de productos
+- [X] `PATCH /products/:id/toggle-availability` - Cambiar disponibilidad
 
 #### Frontend - Páginas a crear:
 

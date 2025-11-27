@@ -50,13 +50,13 @@ export const authService = {
    */
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>('/auth/login', credentials);
-    
+
     // 💾 Guardar usuario en memoria
     currentUser = response.data.user;
-    
+
     // 💾 También en sessionStorage para persistir entre reloads (opcional)
     sessionStorage.setItem('user', JSON.stringify(response.data.user));
-    
+
     return response.data;
   },
 
@@ -65,13 +65,13 @@ export const authService = {
    */
   register: async (data: RegisterData): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>('/auth/register', data);
-    
+
     // 💾 Guardar usuario en memoria
     currentUser = response.data.user;
-    
+
     // 💾 También en sessionStorage
     sessionStorage.setItem('user', JSON.stringify(response.data.user));
-    
+
     return response.data;
   },
 
@@ -81,11 +81,11 @@ export const authService = {
    */
   refreshToken: async (): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>('/auth/refresh', {});
-    
+
     // 💾 Actualizar usuario en memoria
     currentUser = response.data.user;
     sessionStorage.setItem('user', JSON.stringify(response.data.user));
-    
+
     return response.data;
   },
 
@@ -111,11 +111,11 @@ export const authService = {
   getCurrentUser: (): User | null => {
     // Primero intentar desde memoria
     if (currentUser) return currentUser;
-    
+
     // Si no está en memoria, intentar desde sessionStorage
     const userStr = sessionStorage.getItem('user');
     if (!userStr) return null;
-    
+
     try {
       currentUser = JSON.parse(userStr);
       return currentUser;

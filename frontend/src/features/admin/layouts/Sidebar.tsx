@@ -1,17 +1,17 @@
 // frontend/src/features/admin/layouts/Sidebar.tsx
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  ShoppingBag, 
-  UtensilsCrossed, 
-  Users, 
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  UtensilsCrossed,
+  Users,
   ChefHat,
   Table2,
   BarChart3,
   Settings,
   Bell,
   Calendar,
-  X
+  X,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -49,15 +49,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   return (
     <>
       {/* Overlay móvil */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-gray-900/50 z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 bg-gray-900/50 z-40 lg:hidden" onClick={onClose} />}
 
       {/* Sidebar */}
-      <aside 
+      <aside
         className={`
           fixed top-0 left-0 z-50 h-full w-64 bg-white shadow-xl
           transform transition-transform duration-300 ease-in-out
@@ -76,10 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <p className="text-xs text-gray-500">Admin Panel</p>
             </div>
           </div>
-          <button 
-            onClick={onClose}
-            className="lg:hidden text-gray-400 hover:text-gray-600"
-          >
+          <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -89,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
-            
+
             return (
               <Link
                 key={item.path}
@@ -98,17 +90,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 className={`
                   flex items-center justify-between px-4 py-3 rounded-lg
                   transition-all duration-200 group
-                  ${active 
-                    ? 'bg-orange-50 text-orange-600' 
-                    : 'text-gray-700 hover:bg-gray-50'
-                  }
+                  ${active ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50'}
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-5 h-5 ${active ? 'text-orange-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                  <Icon
+                    className={`w-5 h-5 ${active ? 'text-orange-600' : 'text-gray-400 group-hover:text-gray-600'}`}
+                  />
                   <span className="font-medium text-sm">{item.name}</span>
                 </div>
-                
+
                 {item.badge && (
                   <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                     {item.badge}

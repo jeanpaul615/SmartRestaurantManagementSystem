@@ -1,7 +1,12 @@
 // frontend/src/features/auth/store/AuthContext.tsx
 
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { authService, type User, type LoginCredentials, type RegisterData } from '../services/authService';
+import {
+  authService,
+  type User,
+  type LoginCredentials,
+  type RegisterData,
+} from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -65,9 +70,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       const response = await authService.login(credentials);
       setUser(response.user);
-      
+
       toast.success(`¡Bienvenido, ${response.user.username}!`);
-      
+
       // Redirigir al dashboard principal
       navigate('/dashboard');
     } catch (error: any) {
@@ -87,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       const response = await authService.register(data);
       setUser(response.user);
-      
+
       toast.success('¡Cuenta creada exitosamente!');
       navigate('/menu');
     } catch (error: any) {
@@ -151,10 +156,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
+
   return context;
 };

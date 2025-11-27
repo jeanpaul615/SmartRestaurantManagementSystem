@@ -17,29 +17,18 @@ export const OrdersChart: React.FC = () => {
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        <XAxis 
-          dataKey="hora" 
-          stroke="#888"
-          style={{ fontSize: '12px' }}
-        />
-        <YAxis 
-          stroke="#888"
-          style={{ fontSize: '12px' }}
-        />
-        <Tooltip 
-          contentStyle={{ 
+        <XAxis dataKey="hora" stroke="#888" style={{ fontSize: '12px' }} />
+        <YAxis stroke="#888" style={{ fontSize: '12px' }} />
+        <Tooltip
+          contentStyle={{
             backgroundColor: '#fff',
             border: '1px solid #e5e7eb',
             borderRadius: '8px',
-            fontSize: '12px'
+            fontSize: '12px',
           }}
           formatter={(value: number) => [`${value}`, 'Pedidos']}
         />
-        <Bar 
-          dataKey="pedidos" 
-          fill="#f97316" 
-          radius={[8, 8, 0, 0]}
-        />
+        <Bar dataKey="pedidos" fill="#f97316" radius={[8, 8, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

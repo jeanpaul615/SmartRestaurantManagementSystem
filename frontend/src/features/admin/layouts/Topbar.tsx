@@ -21,7 +21,6 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
       <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        
         {/* Left: Menu button + Search */}
         <div className="flex items-center gap-4 flex-1">
           <button
@@ -46,7 +45,6 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
 
         {/* Right: Notifications + User */}
         <div className="flex items-center gap-2">
-          
           {/* Notifications */}
           <div className="relative">
             <button
@@ -65,7 +63,10 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
+                    <div
+                      key={i}
+                      className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                    >
                       <div className="flex gap-3">
                         <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
                           <Bell className="w-5 h-5 text-orange-600" />
@@ -121,7 +122,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
                   </button>
                 </div>
                 <div className="border-t border-gray-200">
-                  <button 
+                  <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
                   >
