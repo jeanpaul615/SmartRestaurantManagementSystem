@@ -252,4 +252,23 @@ export class ProductsController {
   async searchProducts(@Query('name') name: string): Promise<Product[]> {
     return this.productsService.searchProducts(name);
   }
+
+
+  @Patch('id/toggle-availability')
+  @Roles('admin', 'waiter')
+  @ApiOperation({
+    summary: 'Actualizar disponibilidad de un producto (Admin/Waiter)',
+    description: 'Cambia el estado de disponibilidad de un producto',
+  })
+  @ApiParam({ name: 'id', description: 'ID del producto', type: Number })
+  @ApiResponse({ status: 200, description: 'Disponibilidad del producto actualizada exitosamente.', type: Product })
+  @ApiResponse({ status: 401, description: 'No autorizado.' })
+  @ApiResponse({ status: 403, description: 'Acceso prohibido.' })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado.' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
+  async toggleAvailability(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Product> {
+    return this.productsService.toggleAvailability(id);
+  }
 }

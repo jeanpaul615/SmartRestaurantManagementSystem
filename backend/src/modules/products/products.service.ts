@@ -155,4 +155,10 @@ export class ProductsService {
 
     return await queryBuilder.getMany();
   }
+
+  async toggleAvailability(id: number): Promise<Product> {
+    const product = await this.findOne(id);
+    product.available = !product.available;
+    return await this.productsRepository.save(product);
+  }
 }
