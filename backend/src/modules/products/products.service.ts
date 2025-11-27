@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Product } from './products.entity';
 import { Restaurant } from '../restaurant/restaurant.entity';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -62,6 +62,17 @@ export class ProductsService {
     return product;
   }
 
+  async findByName(name: string): Promise<Product> {
+    const product = await this.productsRepository.findOne({
+      where: {name},
+    })
+
+    if(!product){
+      throw new NotFoundException(`Producto con Nombre ${name} no encontrado`);
+    }
+    return product;
+  }
+
   async findByRestaurant(restaurantId: number): Promise<Product[]> {
     return this.findAll(restaurantId);
   }
@@ -88,5 +99,62 @@ export class ProductsService {
     }
 
     return await this.productsRepository.save(product);
+  }
+
+  async findByCategory(category: string, restaurantId?: number): Promise<Product[]> {
+    const queryBuilder = this.productsRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.restaurant', 'restaurant')
+      .where('product.category = :category', { category });
+
+    if (restaurantId) {
+      queryBuilder.andWhere('product.restaurant.id = :restaurantId', { restaurantId });
+    }
+
+    queryBuilder.orderBy('product.name', 'ASC');
+
+    return await queryBuilder.getMany();
+  }
+
+  // Método adicional para filtros múltiples
+  async findWithFilters(filters: {
+    category?: string;
+    restaurantId?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    search?: string;
+  }): Promise<Product[]> {
+    const queryBuilder = this.productsRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.restaurant', 'restaurant');
+
+    if (filters.category) {
+      queryBuilder.andWhere('product.category = :category', { category: filters.category });
+    }
+
+    if (filters.restaurantId) {
+      queryBuilder.andWhere('product.restaurant.id = :restaurantId', { 
+        restaurantId: filters.restaurantId 
+      });
+    }
+
+    if (filters.minPrice !== undefined) {
+      queryBuilder.andWhere('product.price >= :minPrice', { minPrice: filters.minPrice });
+    }
+
+    if (filters.maxPrice !== undefined) {
+      queryBuilder.andWhere('product.price <= :maxPrice', { maxPrice: filters.maxPrice });
+    }
+
+    if (filters.search) {
+      queryBuilder.andWhere(
+        '(product.name ILIKE :search OR product.description ILIKE :search)',
+        { search: `%${filters.search}%` }
+      );
+    }
+
+    queryBuilder.orderBy('product.name', 'ASC');
+
+    return await queryBuilder.getMany();
   }
 }

@@ -17,6 +17,7 @@ import {
   ApiParam,
   ApiQuery,
   ApiBody,
+  ApiProperty,
 } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -215,4 +216,37 @@ export class ProductsController {
     await this.productsService.remove(id);
     return { message: 'Producto eliminado exitosamente' };
   }
+
+  @Get('category/:category')
+  @Public()
+  @ApiOperation({
+    summary: 'Obtener productos por categoría (Público)',
+    description: 'Obtiene todos los productos de una categoría específica, opcionalmente filtrados por restaurante',
+  })
+  @ApiParam({ name: 'category', description: 'Categoría del producto', type: String })
+  @ApiQuery({
+    name: 'restaurantId',
+    required: false,
+    description: 'Filtrar por ID de restaurante',
+    type: Number,
+  })
+  @ApiResponse({ status: 200, description: 'Lista de productos por categoría.', type: [Product] })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
+  async findByCategory(
+    @Param('category') category: string,
+    @Query('restaurantId') restaurantId?: number,
+  ): Promise<Product[]> {
+    return this.productsService.findByCategory(category, restaurantId);
+  }
+/*
+  @Get(':name')
+  @Public()
+  @ApiOperation({
+    summary: 'Obtener producto por Nombre',
+    description: 'Obtiene un producto basado en su nombre',
+  })
+  @ApiParam({name: 'name', description: 'nombre del producto', type:String })
+  @ApiQuery({
+    name: 
+  })*/
 }
