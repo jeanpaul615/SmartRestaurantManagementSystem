@@ -238,15 +238,18 @@ export class ProductsController {
   ): Promise<Product[]> {
     return this.productsService.findByCategory(category, restaurantId);
   }
-/*
-  @Get(':name')
+
+  @Get('search')
   @Public()
   @ApiOperation({
-    summary: 'Obtener producto por Nombre',
-    description: 'Obtiene un producto basado en su nombre',
+    summary: 'Obtener productos por Nombre',
+    description: 'Obtiene productos que coinciden con el nombre proporcionado',
   })
-  @ApiParam({name: 'name', description: 'nombre del producto', type:String })
-  @ApiQuery({
-    name: 
-  })*/
+  @ApiParam({ name: 'name', description: 'Nombre del producto', type: String })
+  @ApiResponse({ status: 200, description: 'Detalles del producto.', type: Product })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado.' })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
+  async searchProducts(@Query('name') name: string): Promise<Product[]> {
+    return this.productsService.searchProducts(name);
+  }
 }

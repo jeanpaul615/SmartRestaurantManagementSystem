@@ -59,7 +59,7 @@ TOTAL:         ████████░░ 55% - Proyecto sólido, necesita d
 ### 2.1 Sistema de Gestión de Menú 🍕
 
 #### Backend - Endpoints adicionales:
-- [ ] `GET /products/category/:category` - Filtrar por categoría
+- [X] `GET /products/category/:category` - Filtrar por categoría
 - [ ] `GET /products/search?q=pizza` - Búsqueda de productos
 - [ ] `PATCH /products/:id/toggle-availability` - Cambiar disponibilidad
 

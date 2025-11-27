@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { Like, Not, Repository } from 'typeorm';
 import { Product } from './products.entity';
 import { Restaurant } from '../restaurant/restaurant.entity';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -62,15 +62,13 @@ export class ProductsService {
     return product;
   }
 
-  async findByName(name: string): Promise<Product> {
-    const product = await this.productsRepository.findOne({
-      where: {name},
-    })
-
-    if(!product){
-      throw new NotFoundException(`Producto con Nombre ${name} no encontrado`);
-    }
-    return product;
+  async searchProducts(searchTerm: string): Promise<Product[]> {
+    return this.productsRepository.find({
+      where: [
+        { name: Like(`%${searchTerm}%`) },
+        { description: Like(`%${searchTerm}%`) }
+      ]
+    });
   }
 
   async findByRestaurant(restaurantId: number): Promise<Product[]> {
