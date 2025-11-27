@@ -15,15 +15,42 @@ export class Reservation {
     example: '2025-10-28T19:00:00.000Z',
   })
   @Column({ type: 'timestamp' })
-  reservationTime: Date;
+  reservationDate: Date;
+
+  @ApiProperty({
+    description: 'Número de comensales',
+    example: 4,
+  })
+  @Column({ type: 'integer' })
+  numberOfGuests: number;
 
   @ApiProperty({
     description: 'Estado de la reservación',
     example: 'pending',
     enum: ['pending', 'confirmed', 'cancelled', 'completed'],
   })
-  @Column({ length: 20, default: 'pending' })
+  @Column({
+    type: 'enum',
+    enum: ['pending', 'confirmed', 'cancelled', 'completed'],
+    default: 'pending',
+  })
   status: string;
+
+  @ApiProperty({
+    description: 'Notas adicionales',
+    example: 'Mesa junto a la ventana',
+    required: false,
+  })
+  @Column({ type: 'text', nullable: true })
+  notes: string;
+
+  @ApiProperty({ description: 'Fecha de creación' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @ApiProperty({ description: 'Fecha de actualización' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 
   @ApiProperty({
     description: 'Restaurante donde se realiza la reservación',

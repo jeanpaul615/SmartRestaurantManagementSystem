@@ -1,4 +1,4 @@
-import { IsDateString, IsOptional, IsString, IsIn } from 'class-validator';
+import { IsDateString, IsOptional, IsString, IsIn, IsNumber } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateReservationDto {
@@ -9,7 +9,25 @@ export class UpdateReservationDto {
   })
   @IsOptional()
   @IsDateString({}, { message: 'La fecha debe estar en formato ISO' })
-  reservationTime?: string;
+  reservationDate?: string;
+
+  @ApiPropertyOptional({
+    description: 'Número de comensales',
+    example: 6,
+    type: Number,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: 'El número de comensales debe ser un número' })
+  numberOfGuests?: number;
+
+  @ApiPropertyOptional({
+    description: 'Notas adicionales',
+    example: 'Celebración de cumpleaños',
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'Las notas deben ser texto' })
+  notes?: string;
 
   @ApiPropertyOptional({
     description: 'Estado de la reservación',

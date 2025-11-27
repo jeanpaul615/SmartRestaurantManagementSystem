@@ -22,7 +22,8 @@ export class ReservationsService {
   ) {}
 
   async create(createReservationDto: CreateReservationDto, userId: number): Promise<Reservation> {
-    const { restaurantId, tableId, reservationTime, status } = createReservationDto;
+    const { restaurantId, tableId, reservationDate, numberOfGuests, notes, status } =
+      createReservationDto;
 
     // Verificar que el restaurante existe
     const restaurant = await this.restaurantRepository.findOne({
@@ -49,13 +50,15 @@ export class ReservationsService {
     }
 
     // Verificar que la fecha de reservación no sea en el pasado
-    const reservationDate = new Date(reservationTime);
-    if (reservationDate < new Date()) {
+    const reservationDateTime = new Date(reservationDate);
+    if (reservationDateTime < new Date()) {
       throw new BadRequestException('La fecha de reservación no puede ser en el pasado');
     }
 
     const reservation = this.reservationRepository.create({
-      reservationTime: reservationDate,
+      reservationDate: reservationDateTime,
+      numberOfGuests,
+      notes,
       status: status || 'pending',
       restaurant,
       tables: table,
@@ -80,7 +83,7 @@ export class ReservationsService {
       queryBuilder.andWhere('reservation.restaurant.id = :restaurantId', { restaurantId });
     }
 
-    queryBuilder.orderBy('reservation.reservationTime', 'ASC');
+    queryBuilder.orderBy('reservation.reservationDate', 'ASC');
 
     return await queryBuilder.getMany();
   }
@@ -109,12 +112,20 @@ export class ReservationsService {
   async update(id: number, updateReservationDto: UpdateReservationDto): Promise<Reservation> {
     const reservation = await this.findOne(id);
 
-    if (updateReservationDto.reservationTime) {
-      const newDate = new Date(updateReservationDto.reservationTime);
+    if (updateReservationDto.reservationDate) {
+      const newDate = new Date(updateReservationDto.reservationDate);
       if (newDate < new Date()) {
         throw new BadRequestException('La fecha de reservación no puede ser en el pasado');
       }
-      reservation.reservationTime = newDate;
+      reservation.reservationDate = newDate;
+    }
+
+    if (updateReservationDto.numberOfGuests) {
+      reservation.numberOfGuests = updateReservationDto.numberOfGuests;
+    }
+
+    if (updateReservationDto.notes !== undefined) {
+      reservation.notes = updateReservationDto.notes;
     }
 
     if (updateReservationDto.status) {

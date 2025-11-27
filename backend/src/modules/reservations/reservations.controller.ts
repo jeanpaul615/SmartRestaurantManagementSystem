@@ -43,7 +43,9 @@ export class ReservationsController {
         value: {
           restaurantId: 1,
           tableId: 5,
-          reservationTime: '2025-10-28T19:00:00Z',
+          reservationDate: '2025-10-28T19:00:00Z',
+          numberOfGuests: 4,
+          notes: 'Mesa junto a la ventana',
           status: 'pending',
         },
       },
@@ -51,7 +53,8 @@ export class ReservationsController {
         value: {
           restaurantId: 2,
           tableId: 10,
-          reservationTime: '2025-10-29T13:00:00Z',
+          reservationDate: '2025-10-29T13:00:00Z',
+          numberOfGuests: 2,
         },
       },
     },
@@ -159,14 +162,16 @@ export class ReservationsController {
     type: UpdateReservationDto,
     examples: {
       'Cambiar fecha': {
-        value: { reservationTime: '2025-10-29T20:00:00Z' },
+        value: { reservationDate: '2025-10-29T20:00:00Z' },
       },
       'Cambiar estado': {
         value: { status: 'confirmed' },
       },
       'Actualización completa': {
         value: {
-          reservationTime: '2025-10-30T18:30:00Z',
+          reservationDate: '2025-10-30T18:30:00Z',
+          numberOfGuests: 6,
+          notes: 'Celebración especial',
           status: 'confirmed',
         },
       },

@@ -9,7 +9,25 @@ export class CreateReservationDto {
   })
   @IsNotEmpty({ message: 'La fecha y hora de reservación es requerida' })
   @IsDateString({}, { message: 'La fecha debe estar en formato ISO' })
-  reservationTime: string;
+  reservationDate: string;
+
+  @ApiProperty({
+    description: 'Número de comensales',
+    example: 4,
+    type: Number,
+  })
+  @IsNotEmpty({ message: 'El número de comensales es requerido' })
+  @IsNumber({}, { message: 'El número de comensales debe ser un número' })
+  numberOfGuests: number;
+
+  @ApiPropertyOptional({
+    description: 'Notas adicionales para la reservación',
+    example: 'Mesa junto a la ventana',
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'Las notas deben ser texto' })
+  notes?: string;
 
   @ApiPropertyOptional({
     description: 'Estado de la reservación',
