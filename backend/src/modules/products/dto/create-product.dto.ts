@@ -30,6 +30,16 @@ export class CreateProductDto {
   @IsString({ message: 'La descripción debe ser un texto' })
   description?: string;
 
+  @ApiPropertyOptional({
+    description: 'Categoría del producto',
+    example: 'Pizza',
+    maxLength: 50,
+  })
+  @IsOptional()
+  @IsString({ message: 'La categoría debe ser un texto' })
+  @MaxLength(50, { message: 'La categoría no puede exceder los 50 caracteres' })
+  category?: string;
+
   @ApiProperty({
     description: 'Precio del producto',
     example: 12.5,

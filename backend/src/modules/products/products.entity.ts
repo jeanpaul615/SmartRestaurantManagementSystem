@@ -28,6 +28,10 @@ export class Product {
   @Column({ default: 0 })
   stock: number;
 
+  @ApiProperty({ description: 'Categoría del producto', example: 'Pizza', maxLength: 50 })
+  @Column({ length: 50, nullable: true })
+  category: string;
+
   @ApiPropertyOptional({
     description: 'URL de la imagen del producto',
     example: 'https://example.com/pizza.jpg',

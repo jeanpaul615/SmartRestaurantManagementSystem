@@ -23,6 +23,16 @@ export class UpdateProductDto {
   description?: string;
 
   @ApiPropertyOptional({
+    description: 'Categoría del producto',
+    example: 'Pizza',
+    maxLength: 50,
+  })
+  @IsOptional()
+  @IsString({ message: 'La categoría debe ser un texto' })
+  @MaxLength(50, { message: 'La categoría no puede exceder los 50 caracteres' })
+  category?: string;
+
+  @ApiPropertyOptional({
     description: 'Precio del producto',
     example: 15.99,
     minimum: 0,
