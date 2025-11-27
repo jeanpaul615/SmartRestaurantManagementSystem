@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Not, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Product } from './products.entity';
 import { Restaurant } from '../restaurant/restaurant.entity';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -64,10 +64,7 @@ export class ProductsService {
 
   async searchProducts(searchTerm: string): Promise<Product[]> {
     return this.productsRepository.find({
-      where: [
-        { name: Like(`%${searchTerm}%`) },
-        { description: Like(`%${searchTerm}%`) }
-      ]
+      where: [{ name: Like(`%${searchTerm}%`) }, { description: Like(`%${searchTerm}%`) }],
     });
   }
 
@@ -131,8 +128,8 @@ export class ProductsService {
     }
 
     if (filters.restaurantId) {
-      queryBuilder.andWhere('product.restaurant.id = :restaurantId', { 
-        restaurantId: filters.restaurantId 
+      queryBuilder.andWhere('product.restaurant.id = :restaurantId', {
+        restaurantId: filters.restaurantId,
       });
     }
 
@@ -145,10 +142,9 @@ export class ProductsService {
     }
 
     if (filters.search) {
-      queryBuilder.andWhere(
-        '(product.name ILIKE :search OR product.description ILIKE :search)',
-        { search: `%${filters.search}%` }
-      );
+      queryBuilder.andWhere('(product.name ILIKE :search OR product.description ILIKE :search)', {
+        search: `%${filters.search}%`,
+      });
     }
 
     queryBuilder.orderBy('product.name', 'ASC');

@@ -24,6 +24,8 @@ import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { Reservation } from './reservations.entity';
 import { CurrentUser } from '@decorators/current-user.decorator';
 import { Roles } from '@decorators/roles.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { UserRole } from '../users/users.entity';
 
 @ApiTags('reservations')
 @ApiBearerAuth('JWT-auth')
@@ -66,13 +68,13 @@ export class ReservationsController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async create(
     @Body() createReservationDto: CreateReservationDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: AuthenticatedUser,
   ): Promise<Reservation> {
     return this.reservationsService.create(createReservationDto, user.id);
   }
 
   @Get()
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Obtener todas las reservaciones (Admin/Waiter)',
     description:
@@ -113,12 +115,12 @@ export class ReservationsController {
   })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async findMyReservations(@CurrentUser() user: any): Promise<Reservation[]> {
+  async findMyReservations(@CurrentUser() user: AuthenticatedUser): Promise<Reservation[]> {
     return this.reservationsService.findByUser(user.id);
   }
 
   @Get('restaurant/:restaurantId')
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Obtener reservaciones por restaurante (Admin/Waiter)',
     description: 'Obtiene todas las reservaciones de un restaurante específico',
@@ -194,7 +196,7 @@ export class ReservationsController {
   }
 
   @Patch(':id/confirm')
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Confirmar una reservación (Admin/Waiter)',
     description: 'Cambia el estado de la reservación a "confirmed"',
@@ -232,7 +234,7 @@ export class ReservationsController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Eliminar una reservación (Solo Admin)',
     description: 'Elimina una reservación del sistema',

@@ -24,6 +24,8 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './orders.entity';
 import { CurrentUser } from '@decorators/current-user.decorator';
 import { Roles } from '@decorators/roles.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { UserRole } from '../users/users.entity';
 
 @ApiTags('orders')
 @ApiBearerAuth('JWT-auth')
@@ -68,7 +70,10 @@ export class OrdersController {
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 404, description: 'Restaurante, mesa o producto no encontrado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async create(@Body() createOrderDto: CreateOrderDto, @CurrentUser() user: any): Promise<Order> {
+  async create(
+    @Body() createOrderDto: CreateOrderDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<Order> {
     return this.ordersService.create(createOrderDto, user.id);
   }
 
@@ -107,12 +112,12 @@ export class OrdersController {
   @ApiResponse({ status: 200, description: 'Lista de órdenes del usuario.', type: [Order] })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async findMyOrders(@CurrentUser() user: any): Promise<Order[]> {
+  async findMyOrders(@CurrentUser() user: AuthenticatedUser): Promise<Order[]> {
     return this.ordersService.findByUser(user.id);
   }
 
   @Get('restaurant/:restaurantId')
-  @Roles('admin', 'waiter', 'chef')
+  @Roles(UserRole.ADMIN, UserRole.WAITER, UserRole.CHEF)
   @ApiOperation({
     summary: 'Obtener órdenes por restaurante (Admin/Waiter/Chef)',
     description: 'Obtiene todas las órdenes de un restaurante específico',
@@ -143,7 +148,7 @@ export class OrdersController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'waiter', 'chef')
+  @Roles(UserRole.ADMIN, UserRole.WAITER, UserRole.CHEF)
   @ApiOperation({
     summary: 'Actualizar estado de una orden (Admin/Waiter/Chef)',
     description: 'Actualiza el estado de una orden existente',
@@ -180,7 +185,7 @@ export class OrdersController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Eliminar una orden (Solo Admin)',
     description: 'Elimina una orden y todos sus items asociados',

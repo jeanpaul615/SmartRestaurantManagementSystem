@@ -29,13 +29,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
       exception instanceof Error ? exception.stack : exception,
     );
 
-    // ✅ Responder al cliente
+    let errorMessage: string;
+
+    if (typeof message === 'string') {
+      errorMessage = message;
+    } else if (typeof message === 'object' && message !== null && 'message' in message) {
+      errorMessage = (message as { message: string }).message;
+    } else {
+      errorMessage = 'Error interno del servidor';
+    }
+
     response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
       method: request.method,
-      message: typeof message === 'string' ? message : (message as any).message || message,
+      message: errorMessage,
     });
   }
 }

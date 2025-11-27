@@ -12,6 +12,7 @@ import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
 import { OrderItem } from './order_items.entity';
 import { Roles } from '@decorators/roles.decorator';
+import { UserRole } from '../users/users.entity';
 
 @ApiTags('order-items')
 @ApiBearerAuth('JWT-auth')
@@ -20,7 +21,7 @@ export class OrderItemsController {
   constructor(private readonly orderItemsService: OrderItemsService) {}
 
   @Post()
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Agregar un item a una orden (Admin/Waiter)',
     description: 'Agrega un nuevo item a una orden existente',
@@ -49,7 +50,7 @@ export class OrderItemsController {
   }
 
   @Get()
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Obtener todos los items de órdenes (Solo Admin)',
     description: 'Obtiene todos los items de todas las órdenes',
@@ -90,7 +91,7 @@ export class OrderItemsController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Actualizar un item de orden (Admin/Waiter)',
     description: 'Actualiza la cantidad o precio de un item de orden',
@@ -124,7 +125,7 @@ export class OrderItemsController {
   }
 
   @Delete(':id')
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Eliminar un item de orden (Admin/Waiter)',
     description: 'Elimina un item de una orden',

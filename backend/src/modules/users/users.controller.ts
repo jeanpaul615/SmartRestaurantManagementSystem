@@ -23,6 +23,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserRole, UserStatus } from './users.entity';
 import { CurrentUser } from '@decorators/current-user.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { Roles } from '@decorators/roles.decorator';
 
 @ApiTags('users')
@@ -32,7 +33,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Crear un nuevo usuario (Solo Admin)',
     description: 'Crea un nuevo usuario en el sistema',
@@ -69,7 +70,7 @@ export class UsersController {
   }
 
   @Get()
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Obtener todos los usuarios (Solo Admin)',
     description: 'Obtiene todos los usuarios, opcionalmente filtrados por rol o estado',
@@ -105,12 +106,12 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Perfil del usuario.', type: User })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async getMyProfile(@CurrentUser() user: any): Promise<User> {
+  async getMyProfile(@CurrentUser() user: AuthenticatedUser): Promise<User> {
     return this.usersService.findOne(user.id);
   }
 
   @Get('role/:role')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Obtener usuarios por rol (Solo Admin)',
     description: 'Obtiene todos los usuarios con un rol específico',
@@ -129,7 +130,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Obtener un usuario por ID (Solo Admin)',
     description: 'Obtiene la información de un usuario específico',
@@ -169,7 +170,7 @@ export class UsersController {
   @ApiResponse({ status: 409, description: 'El email ya está registrado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async updateMyProfile(
-    @CurrentUser() user: any,
+    @CurrentUser() user: AuthenticatedUser,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     // Usuarios no admin no pueden cambiar su propio rol
@@ -181,7 +182,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Actualizar un usuario (Solo Admin)',
     description: 'Actualiza la información de un usuario específico',
@@ -221,7 +222,7 @@ export class UsersController {
   }
 
   @Patch(':id/deactivate')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Desactivar un usuario (Solo Admin)',
     description: 'Cambia el estado del usuario a "inactive"',
@@ -237,7 +238,7 @@ export class UsersController {
   }
 
   @Patch(':id/activate')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Activar un usuario (Solo Admin)',
     description: 'Cambia el estado del usuario a "active"',
@@ -253,7 +254,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Eliminar un usuario (Solo Admin)',
     description: 'Elimina un usuario del sistema',

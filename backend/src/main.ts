@@ -8,15 +8,15 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
 
 // ✅ Manejo de errores no capturados
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', (error: Error) => {
   console.error('💥 Uncaught Exception:', error);
   console.error('Stack:', error.stack);
   process.exit(1);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
   console.error('💥 Unhandled Rejection at:', promise);
-  console.error('Reason:', reason);
+  console.error('Reason:', reason instanceof Error ? reason.message : String(reason));
   process.exit(1);
 });
 
@@ -59,30 +59,44 @@ async function bootstrap() {
     setupSwagger(app);
 
     const port = process.env.PORT ?? 8000;
-    const server = await app.listen(port);
+    await app.listen(port);
 
     Logger.log(`🚀 Servidor corriendo en puerto ${port}`, 'Bootstrap');
 
     // 🧹 Manejo elegante del cierre de la app
-    const shutdown = async (signal: string) => {
+    const shutdown = (signal: string) => {
       Logger.warn(`\n📴 Señal recibida (${signal}). Cerrando servidor...`, 'Shutdown');
-      try {
-        await server.close();
-        Logger.log('✅ Servidor cerrado correctamente.', 'Shutdown');
-        process.exit(0);
-      } catch (err) {
-        Logger.error('❌ Error al cerrar el servidor:', err);
-        process.exit(1);
-      }
+
+      app
+        .close()
+        .then(() => {
+          Logger.log('✅ Servidor cerrado correctamente.', 'Shutdown');
+          process.exit(0);
+        })
+        .catch((err) => {
+          Logger.error(
+            '❌ Error al cerrar el servidor:',
+            err instanceof Error ? err.message : String(err),
+          );
+          process.exit(1);
+        });
     };
 
     // Captura de señales comunes
-    process.on('SIGINT', () => shutdown('SIGINT')); // Ctrl + C
-    process.on('SIGTERM', () => shutdown('SIGTERM')); // Docker / PM2 / sistemas
+    process.on('SIGINT', () => {
+      shutdown('SIGINT');
+    }); // Ctrl + C
+    process.on('SIGTERM', () => {
+      shutdown('SIGTERM');
+    }); // Docker / PM2 / sistemas
   } catch (error) {
-    console.error('❌ Error al iniciar el servidor:', error);
+    console.error(
+      '❌ Error al iniciar el servidor:',
+      error instanceof Error ? error.message : String(error),
+    );
     process.exit(1);
   }
 }
 
-bootstrap();
+// ✅ Llamada correcta a bootstrap con manejo de errores
+void bootstrap();

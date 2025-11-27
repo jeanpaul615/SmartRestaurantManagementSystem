@@ -13,6 +13,8 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Notification } from './notifications.entity';
 import { CurrentUser } from '@decorators/current-user.decorator';
 import { Roles } from '@decorators/roles.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { UserRole } from '../users/users.entity';
 
 @ApiTags('notifications')
 @ApiBearerAuth('JWT-auth')
@@ -21,7 +23,7 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post()
-  @Roles('admin', 'waiter', 'chef')
+  @Roles(UserRole.ADMIN, UserRole.WAITER, UserRole.CHEF)
   @ApiOperation({
     summary: 'Crear una nueva notificación (Admin/Waiter/Chef)',
     description: 'Crea una notificación para un usuario específico',
@@ -58,7 +60,7 @@ export class NotificationsController {
   }
 
   @Get()
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Obtener todas las notificaciones (Solo Admin)',
     description: 'Obtiene todas las notificaciones del sistema',
@@ -83,7 +85,7 @@ export class NotificationsController {
   })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async findMyNotifications(@CurrentUser() user: any): Promise<Notification[]> {
+  async findMyNotifications(@CurrentUser() user: AuthenticatedUser): Promise<Notification[]> {
     return this.notificationsService.findByUser(user.id);
   }
 
@@ -99,7 +101,7 @@ export class NotificationsController {
   })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async findMyUnreadNotifications(@CurrentUser() user: any): Promise<Notification[]> {
+  async findMyUnreadNotifications(@CurrentUser() user: AuthenticatedUser): Promise<Notification[]> {
     return this.notificationsService.findUnreadByUser(user.id);
   }
 
@@ -111,13 +113,13 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'Todas las notificaciones marcadas como leídas.' })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async markAllAsRead(@CurrentUser() user: any): Promise<{ message: string }> {
+  async markAllAsRead(@CurrentUser() user: AuthenticatedUser): Promise<{ message: string }> {
     await this.notificationsService.markAllAsReadByUser(user.id);
     return { message: 'Todas las notificaciones marcadas como leídas' };
   }
 
   @Get('user/:userId')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Obtener notificaciones de un usuario (Solo Admin)',
     description: 'Obtiene todas las notificaciones de un usuario específico',
@@ -212,7 +214,7 @@ export class NotificationsController {
   }
 
   @Delete('user/:userId')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Eliminar todas las notificaciones de un usuario (Solo Admin)',
     description: 'Elimina todas las notificaciones de un usuario específico',

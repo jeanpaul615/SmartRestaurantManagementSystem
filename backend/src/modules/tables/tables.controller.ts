@@ -9,6 +9,8 @@ import { CreateTableDto } from './dto/create-tables.dto';
 //GUARDS & DECORATORS
 import { CurrentUser } from '@decorators/current-user.decorator';
 import { Roles } from '@decorators/roles.decorator';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { UserRole } from '../users/users.entity';
 
 @ApiTags('tables')
 @ApiBearerAuth('JWT-auth') // ✅ Agregar autenticación JWT a todo el controlador
@@ -16,7 +18,7 @@ import { Roles } from '@decorators/roles.decorator';
 export class TablesController {
   constructor(private readonly tablesService: TablesService) {}
   //Create a new table - Solo Admin puede crear mesas
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @Post()
   @ApiOperation({ summary: 'Crear una nueva mesa' })
   @ApiResponse({ status: 201, description: 'La mesa ha sido creada.', type: Tables })
@@ -24,7 +26,10 @@ export class TablesController {
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 403, description: 'Acceso prohibido.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async createTable(@Body() dto: CreateTableDto, @CurrentUser() user: any): Promise<Tables> {
+  async createTable(
+    @Body() dto: CreateTableDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<Tables> {
     console.log(`Mesa creada por: ${user.username}`);
     return this.tablesService.CreateTable(dto);
   }
@@ -34,7 +39,7 @@ export class TablesController {
   @ApiResponse({ status: 200, description: 'Lista de mesas obtenida.', type: [Tables] })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async getAllTables(@CurrentUser() user: any): Promise<Tables[]> {
+  async getAllTables(@CurrentUser() user: AuthenticatedUser): Promise<Tables[]> {
     console.log(`Lista de mesas solicitada por: ${user.username}`);
     return this.tablesService.FindAll();
   }

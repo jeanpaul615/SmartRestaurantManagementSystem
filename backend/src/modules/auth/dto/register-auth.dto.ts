@@ -1,5 +1,6 @@
 import { IsString, IsEmail, MinLength, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '@/modules/users/users.entity';
 
 export class RegisterDto {
   @ApiProperty({ example: 'Carlos Renemos', description: 'El nombre de usuario del usuario' })
@@ -15,8 +16,8 @@ export class RegisterDto {
   @MinLength(6)
   password: string;
 
-  @ApiProperty({ example: 'customer', description: 'El rol del usuario', required: false })
+  @ApiProperty({ example: 'waiter', description: 'El rol del usuario', required: false })
   @IsOptional()
   @IsString()
-  role?: string;
+  role?: UserRole;
 }

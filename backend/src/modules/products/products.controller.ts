@@ -17,15 +17,14 @@ import {
   ApiParam,
   ApiQuery,
   ApiBody,
-  ApiProperty,
 } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './products.entity';
-import { CurrentUser } from '@decorators/current-user.decorator';
 import { Roles } from '@decorators/roles.decorator';
 import { Public } from '@decorators/public.decorator';
+import { UserRole } from '../users/users.entity';
 
 @ApiTags('products')
 @ApiBearerAuth('JWT-auth')
@@ -34,7 +33,7 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Crear un nuevo producto (Admin/Waiter)',
     description: 'Crea un nuevo producto para un restaurante específico',
@@ -122,7 +121,7 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Actualizar un producto (Admin/Waiter)',
     description: 'Actualiza la información de un producto existente',
@@ -162,7 +161,7 @@ export class ProductsController {
   }
 
   @Patch(':id/stock')
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Actualizar stock de un producto (Admin/Waiter)',
     description: 'Incrementa o decrementa el stock de un producto',
@@ -201,7 +200,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Eliminar un producto (Solo Admin)',
     description: 'Elimina un producto del sistema',
@@ -221,7 +220,8 @@ export class ProductsController {
   @Public()
   @ApiOperation({
     summary: 'Obtener productos por categoría (Público)',
-    description: 'Obtiene todos los productos de una categoría específica, opcionalmente filtrados por restaurante',
+    description:
+      'Obtiene todos los productos de una categoría específica, opcionalmente filtrados por restaurante',
   })
   @ApiParam({ name: 'category', description: 'Categoría del producto', type: String })
   @ApiQuery({
@@ -253,22 +253,23 @@ export class ProductsController {
     return this.productsService.searchProducts(name);
   }
 
-
   @Patch('id/toggle-availability')
-  @Roles('admin', 'waiter')
+  @Roles(UserRole.ADMIN, UserRole.WAITER)
   @ApiOperation({
     summary: 'Actualizar disponibilidad de un producto (Admin/Waiter)',
     description: 'Cambia el estado de disponibilidad de un producto',
   })
   @ApiParam({ name: 'id', description: 'ID del producto', type: Number })
-  @ApiResponse({ status: 200, description: 'Disponibilidad del producto actualizada exitosamente.', type: Product })
+  @ApiResponse({
+    status: 200,
+    description: 'Disponibilidad del producto actualizada exitosamente.',
+    type: Product,
+  })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 403, description: 'Acceso prohibido.' })
   @ApiResponse({ status: 404, description: 'Producto no encontrado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async toggleAvailability(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<Product> {
+  async toggleAvailability(@Param('id', ParseIntPipe) id: number): Promise<Product> {
     return this.productsService.toggleAvailability(id);
   }
 }

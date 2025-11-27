@@ -9,6 +9,7 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtConfig } from './interfaces/jwt-config.interface';
 
 @Module({
   imports: [
@@ -17,11 +18,15 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     UsersModule,
     ConfigModule, // Importa el ConfigModule aquí
     JwtModule.registerAsync({
-      useFactory: (configService: ConfigService) => {
-        const expiresIn = configService.get<string>('JWT_EXPIRES_IN');
+      useFactory: (configService: ConfigService): JwtConfig => {
+        const secret = configService.get<string>('JWT_SECRET') || 'your-secret-key';
+        const expiresIn = configService.get<string>('JWT_EXPIRES_IN') || '1h';
+
         return {
-          secret: configService.get<string>('JWT_SECRET'),
-          signOptions: { expiresIn: expiresIn as any },
+          secret,
+          signOptions: {
+            expiresIn: expiresIn as `${number}${'s' | 'm' | 'h' | 'd'}`,
+          },
         };
       },
       inject: [ConfigService],

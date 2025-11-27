@@ -11,9 +11,9 @@ import { RestaurantService } from './restaurant.service';
 import { Restaurant } from './restaurant.entity';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import { CurrentUser } from '@decorators/current-user.decorator';
 import { Roles } from '@decorators/roles.decorator';
 import { Public } from '../auth';
+import { UserRole } from '../users/users.entity';
 
 @ApiTags('restaurant')
 @ApiBearerAuth('JWT-auth')
@@ -22,7 +22,7 @@ export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
   @Post()
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Crear un nuevo restaurante (Solo Admin)',
     description: 'Crea un nuevo restaurante en el sistema',
@@ -73,7 +73,7 @@ export class RestaurantController {
   }
 
   @Get('user/:userId')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Obtener restaurantes por usuario (Solo Admin)',
     description: 'Obtiene todos los restaurantes asociados a un usuario específico',
@@ -106,7 +106,7 @@ export class RestaurantController {
   }
 
   @Patch(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Actualizar un restaurante (Solo Admin)',
     description: 'Actualiza la información de un restaurante existente',
@@ -152,7 +152,7 @@ export class RestaurantController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Eliminar un restaurante (Solo Admin)',
     description: 'Elimina un restaurante del sistema',

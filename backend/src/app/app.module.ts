@@ -1,4 +1,4 @@
-import { Module, Res } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 
 import { AppController } from './app.controller';

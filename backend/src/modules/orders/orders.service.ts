@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './orders.entity';
@@ -8,6 +8,7 @@ import { Tables } from '../tables/tables.entity';
 import { Product } from '../products/products.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Injectable()
 export class OrdersService {
@@ -57,7 +58,7 @@ export class OrdersService {
     const order = this.orderRepository.create({
       restaurant,
       tables: table,
-      user: { id: userId } as any,
+      user: { id: userId } as AuthenticatedUser,
       status: status || 'pending',
     });
 
@@ -67,7 +68,7 @@ export class OrdersService {
     const orderItems = items.map((item) => {
       return this.orderItemRepository.create({
         order: savedOrder,
-        product: { id: item.productId } as any,
+        product: { id: item.productId } as AuthenticatedUser,
         quantity: item.quantity,
         price: item.price,
       });

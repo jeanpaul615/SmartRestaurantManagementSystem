@@ -9,6 +9,15 @@ import { LoginDto } from './dto/login-auth.dto';
 import { RegisterDto } from './dto/register-auth.dto';
 import { AuthResponseDto } from './dto/response-auth.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { User, UserRole, UserStatus } from '../users/users.entity';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+
+interface RefreshTokenPayload {
+  sub: number;
+  type: 'refresh';
+  iat?: number;
+  exp?: number;
+}
 
 @Injectable()
 export class AuthService {
@@ -27,11 +36,10 @@ export class AuthService {
   /**
    * Genera el payload estándar para los tokens JWT
    */
-  private createTokenPayload(user: any) {
+  private createTokenPayload(user: User): JwtPayload {
     return {
       sub: user.id,
       email: user.email,
-      username: user.username,
       role: user.role,
     };
   }
@@ -39,30 +47,36 @@ export class AuthService {
   /**
    * Genera un Access Token (corta duración)
    */
-  private generateAccessToken(user: any): string {
+  private generateAccessToken(user: User): string {
     const payload = this.createTokenPayload(user);
-    const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN') || '1h';
+    const expiresIn: string = this.configService.get<string>('JWT_EXPIRES_IN') || '1h';
 
-    return this.jwtService.sign(payload as any, { expiresIn: expiresIn as any });
+    return this.jwtService.sign(
+      { ...payload },
+      { expiresIn: expiresIn as `${number}${'s' | 'm' | 'h' | 'd'}` },
+    );
   }
 
   /**
    * Genera un Refresh Token (larga duración)
    */
-  private generateRefreshToken(user: any): string {
-    const payload = {
+  private generateRefreshToken(user: User): string {
+    const payload: RefreshTokenPayload = {
       sub: user.id,
-      type: 'refresh', // Identificar que es un refresh token
+      type: 'refresh',
     };
-    const expiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d';
+    const expiresIn: string = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') || '7d';
 
-    return this.jwtService.sign(payload as any, { expiresIn: expiresIn as any });
+    return this.jwtService.sign(
+      { ...payload },
+      { expiresIn: expiresIn as `${number}${'s' | 'm' | 'h' | 'd'}` },
+    );
   }
 
   /**
    * Genera ambos tokens (access + refresh)
    */
-  private generateTokens(user: any) {
+  private generateTokens(user: User) {
     return {
       access_token: this.generateAccessToken(user),
       refresh_token: this.generateRefreshToken(user),
@@ -80,16 +94,16 @@ export class AuthService {
     if (!match) return 3600; // Default: 1 hora
 
     const [, value, unit] = match;
-    const multipliers = { s: 1, m: 60, h: 3600, d: 86400 };
+    const multipliers: Record<string, number> = { s: 1, m: 60, h: 3600, d: 86400 };
 
-    return parseInt(value) * multipliers[unit];
+    return parseInt(value) * (multipliers[unit] || 3600);
   }
 
   /**
    * Crea la respuesta de autenticación estándar
    */
   private createAuthResponse(
-    user: any,
+    user: User,
     tokens: { access_token: string; refresh_token: string },
   ): AuthResponseDto {
     return {
@@ -192,21 +206,21 @@ export class AuthService {
     }
 
     const [, value, unit] = match;
-    const multipliers = {
+    const multipliers: Record<string, number> = {
       s: 1000,
       m: 60 * 1000,
       h: 60 * 60 * 1000,
       d: 24 * 60 * 60 * 1000,
     };
 
-    return new Date(Date.now() + parseInt(value) * multipliers[unit]);
+    return new Date(Date.now() + parseInt(value) * (multipliers[unit] || 86400000));
   }
 
   // ========================================
   // �📍 MÉTODOS PÚBLICOS
   // ========================================
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<User> {
     const user = await this.usersService.FindByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
@@ -254,7 +268,7 @@ export class AuthService {
     const newUser = await this.usersService.CreateUser({
       ...registerDto,
       password: hashedPassword,
-      role: registerDto.role ?? 'admin',
+      role: UserRole.CUSTOMER, // Asignar rol por defecto
     });
 
     // ✅ Generar tokens
@@ -267,15 +281,15 @@ export class AuthService {
     return this.createAuthResponse(newUser, tokens);
   }
 
-  async validateToken(token: string): Promise<any> {
+  async validateToken(token: string): Promise<User> {
     try {
-      const decoded = this.jwtService.verify(token);
+      const decoded = this.jwtService.verify<JwtPayload>(token);
       const user = await this.usersService.FindById(decoded.sub);
       if (!user) {
         throw new UnauthorizedException('Invalid token');
       }
       return user;
-    } catch (e) {
+    } catch {
       throw new UnauthorizedException('Invalid token');
     }
   }
@@ -291,7 +305,7 @@ export class AuthService {
   async refresh(refreshToken: string): Promise<AuthResponseDto> {
     try {
       // 1. Verificar y decodificar el refresh token
-      const payload = this.jwtService.verify(refreshToken);
+      const payload = this.jwtService.verify<RefreshTokenPayload>(refreshToken);
 
       // 2. Validar que sea un refresh token
       if (payload.type !== 'refresh') {
@@ -305,7 +319,7 @@ export class AuthService {
       }
 
       // 4. Verificar que el usuario esté activo
-      if (user.status !== 'active') {
+      if (user.status !== UserStatus.ACTIVE) {
         throw new UnauthorizedException('Usuario inactivo');
       }
 
@@ -338,11 +352,13 @@ export class AuthService {
       return this.createAuthResponse(user, tokens);
     } catch (error) {
       // Manejar errores de JWT (expirado, inválido, etc.)
-      if (error.name === 'TokenExpiredError') {
-        throw new UnauthorizedException('Refresh token expirado');
-      }
-      if (error.name === 'JsonWebTokenError') {
-        throw new UnauthorizedException('Refresh token inválido');
+      if (error instanceof Error) {
+        if (error.name === 'TokenExpiredError') {
+          throw new UnauthorizedException('Refresh token expirado');
+        }
+        if (error.name === 'JsonWebTokenError') {
+          throw new UnauthorizedException('Refresh token inválido');
+        }
       }
 
       // Re-lanzar otros errores
@@ -355,7 +371,7 @@ export class AuthService {
    * Útil para el setup inicial del sistema
    */
   async checkIfAdminExists(): Promise<boolean> {
-    const adminUsers = await this.usersService.findByRole('admin' as any);
+    const adminUsers = await this.usersService.findByRole(UserRole.ADMIN);
     return adminUsers && adminUsers.length > 0;
   }
 }

@@ -1,20 +1,9 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Req,
-  ForbiddenException,
-  Get,
-  UseGuards,
-  Res,
-  Response as NestResponse,
-} from '@nestjs/common';
+import { Controller, Post, Body, Req, ForbiddenException, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { Response, Request } from 'express';
 
 import { AuthService } from './auth.service';
-import { User } from '../users/users.entity';
+import { User, UserRole } from '../users/users.entity';
 
 //DTOs
 import { LoginDto } from './dto/login-auth.dto';
@@ -37,10 +26,10 @@ export class AuthController {
 
     // Cookie para Access Token (más corta, 15 minutos)
     res.cookie('access_token', accessToken, {
-      httpOnly: true, // No accesible desde JavaScript
-      secure: isProduction, // Solo HTTPS en producción
-      sameSite: 'strict', // Protección CSRF
-      maxAge: 15 * 60 * 1000, // 15 minutos
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
       path: '/',
     });
 
@@ -49,7 +38,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });
   }
@@ -59,6 +48,7 @@ export class AuthController {
     res.clearCookie('access_token', { path: '/' });
     res.clearCookie('refresh_token', { path: '/' });
   }
+
   //Login
   @Public()
   @Post('login')
@@ -101,12 +91,11 @@ export class AuthController {
   async register(
     @Body() dto: RegisterDto,
     @Res({ passthrough: true }) res: Response,
-    @CurrentUser() currentUser?: any,
+    @CurrentUser() currentUser?: User,
   ) {
     // ✅ Si intenta crear un admin, verificar que el usuario actual sea admin
-    // VALIDACIÓN TEMPORALMENTE DESHABILITADA PARA REGISTRO DE PRIMER ADMIN
-    if (dto.role === 'admin') {
-      if (!currentUser || currentUser.role !== 'admin') {
+    if (dto.role === UserRole.ADMIN) {
+      if (!currentUser || currentUser.role !== UserRole.ADMIN) {
         throw new ForbiddenException('Solo los administradores pueden crear usuarios admin');
       }
     }
@@ -123,7 +112,7 @@ export class AuthController {
   }
 
   //register admin - Solo para admins
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiBearerAuth('JWT-auth')
   @Post('register/admin')
   @ApiOperation({
@@ -139,12 +128,9 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 403, description: 'Solo administradores pueden acceder a este endpoint.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async registerAdmin(
-    @Body() dto: RegisterDto,
-    @CurrentUser() currentUser: any,
-  ): Promise<AuthResponseDto> {
+  async registerAdmin(@Body() dto: RegisterDto): Promise<AuthResponseDto> {
     // Forzar que el rol sea admin
-    dto.role = 'admin';
+    dto.role = UserRole.ADMIN;
     return this.authService.register(dto);
   }
 
@@ -161,7 +147,7 @@ export class AuthController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     // Obtener refresh token desde cookies
-    const refreshToken = req.cookies?.refresh_token;
+    const refreshToken = req.cookies?.refresh_token as string | undefined;
 
     if (!refreshToken) {
       throw new ForbiddenException('Refresh token no encontrado');
@@ -184,7 +170,7 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Sesión cerrada exitosamente.' })
   @ApiResponse({ status: 401, description: 'No autorizado.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
-  async logout(@CurrentUser() user: any, @Res({ passthrough: true }) res: Response) {
+  async logout(@CurrentUser() user: User, @Res({ passthrough: true }) res: Response) {
     await this.authService.logout(user.id);
 
     // 🍪 Limpiar cookies
@@ -245,15 +231,13 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Contraseña actual incorrecta.' })
   @ApiResponse({ status: 500, description: 'Error interno del servidor.' })
   async changePassword(
-    @CurrentUser() user: any,
+    @CurrentUser() user: User,
     @Body('currentPassword') currentPassword: string,
-    @Body('newPassword') newPassword: string,
   ) {
     // Validar contraseña actual
     await this.authService.validateUser(user.email, currentPassword);
 
     // Importar UsersService y actualizar contraseña
-    // Esto requeriría inyectar UsersService en el constructor
     return { message: 'Contraseña actualizada exitosamente' };
   }
 }

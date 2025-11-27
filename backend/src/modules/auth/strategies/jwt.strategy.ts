@@ -3,6 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { UsersService } from '../../users/users.service';
+import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { UserStatus } from '../../users/users.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -10,19 +13,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       // 🍪 Extraer token desde cookies en lugar de Authorization header
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
+        (request: Request): string | null => {
           // Primero intentar desde cookies
-          let token = request?.cookies?.access_token;
+          const token = request?.cookies?.access_token as string | undefined;
 
           // Si no hay en cookies, intentar desde header (backwards compatibility)
           if (!token) {
             const authHeader = request?.headers?.authorization;
-            if (authHeader && authHeader.startsWith('Bearer ')) {
-              token = authHeader.substring(7);
+            if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+              return authHeader.substring(7);
             }
           }
 
-          return token;
+          return token || null;
         },
       ]),
       ignoreExpiration: false,
@@ -30,7 +33,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     try {
       // payload contiene: { sub: userId, email, role, iat, exp }
       const userId = typeof payload.sub === 'number' ? payload.sub : Number(payload.sub);
@@ -43,7 +46,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
 
       // Validación adicional: verificar si el usuario está activo
-      if (user.status !== 'active') {
+      if (user.status !== UserStatus.ACTIVE) {
         throw new UnauthorizedException('Usuario inactivo');
       }
 

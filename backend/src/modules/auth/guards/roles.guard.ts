@@ -1,6 +1,8 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
+import { AuthenticatedUser } from '../../auth/interfaces/authenticated-user.interface';
+import { UserRole } from '../../users/users.entity';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -8,7 +10,7 @@ export class RolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     // Obtener los roles requeridos desde los metadatos
-    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -19,7 +21,8 @@ export class RolesGuard implements CanActivate {
     }
 
     // Obtener el usuario del request (ya adjuntado por JwtAuthGuard)
-    const { user } = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<{ user?: AuthenticatedUser }>();
+    const { user } = request;
 
     // Si no hay usuario (ruta pública), denegar acceso
     if (!user) {

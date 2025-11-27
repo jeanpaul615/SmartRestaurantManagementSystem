@@ -32,7 +32,10 @@ export class Product {
   @Column({ length: 50, nullable: true })
   category: string;
 
-  @ApiProperty({ description: 'Indica si el producto está disponible para la venta', example: true })
+  @ApiProperty({
+    description: 'Indica si el producto está disponible para la venta',
+    example: true,
+  })
   @Column({ default: true })
   available: boolean;
 
