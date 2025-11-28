@@ -1,0 +1,17 @@
+# https://www.robotstxt.org/robotstxt.html
+
+# Permitir todos los bots
+User-agent: *
+Allow: /
+
+# Bloquear rutas privadas
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api/
+
+# Crawl delay (milisegundos entre peticiones)
+Crawl-delay: 10
+
+# Sitemap
+Sitemap: https://tudominio.com/sitemap.xml

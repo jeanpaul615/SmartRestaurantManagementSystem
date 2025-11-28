@@ -4,6 +4,7 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { RootRedirect } from './RootRedirect';
 import { DashboardLayout } from '@/features/admin/layouts/DashboardLayout';
 import { DashboardHome } from '@/features/admin/pages/DashboardHome';
+import { ProductsPage } from '@/features/products/pages/ProductPage';
 
 export const AppRouter = () => {
   return (
@@ -23,6 +24,7 @@ export const AppRouter = () => {
         {/* Dashboard con Layout */}
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardHome />} />
+          <Route path="/products" element={<ProductsPage />} />
           <Route path="/menu" element={<div className="p-6">Menu - En construcción</div>} />
           <Route path="/tables" element={<div className="p-6">Tables - En construcción</div>} />
           <Route path="/orders" element={<div className="p-6">Orders - En construcción</div>} />
