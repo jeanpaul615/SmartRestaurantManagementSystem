@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '@app/app.module';
 import { setupSwagger } from '@config/Swagger';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from '@common/filters/all-exceptions.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ExpressAdapter } from '@nestjs/platform-express';
@@ -22,7 +22,9 @@ process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) =>
 
 async function bootstrap() {
   try {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter());
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(), {
+      logger: ['error', 'warn'], // Solo mostrar errores y advertencias
+    });
 
     // 🍪 Habilitar cookie-parser
     app.use(cookieParser());
@@ -53,28 +55,27 @@ async function bootstrap() {
       }),
     );
 
-    Logger.overrideLogger(['error', 'warn', 'log']);
-
     // ✅ Swagger
     setupSwagger(app);
 
     const port = process.env.PORT ?? 8000;
     await app.listen(port);
 
-    Logger.log(`🚀 Servidor corriendo en puerto ${port}`, 'Bootstrap');
+    console.log(`\n🚀 Servidor corriendo en http://localhost:${port}`);
+    console.log(`📚 Swagger disponible en http://localhost:${port}/api\n`);
 
     // 🧹 Manejo elegante del cierre de la app
     const shutdown = (signal: string) => {
-      Logger.warn(`\n📴 Señal recibida (${signal}). Cerrando servidor...`, 'Shutdown');
+      console.log(`\n📴 Cerrando servidor (${signal})...`);
 
       app
         .close()
         .then(() => {
-          Logger.log('✅ Servidor cerrado correctamente.', 'Shutdown');
+          console.log('✅ Servidor cerrado correctamente.');
           process.exit(0);
         })
         .catch((err) => {
-          Logger.error(
+          console.error(
             '❌ Error al cerrar el servidor:',
             err instanceof Error ? err.message : String(err),
           );
